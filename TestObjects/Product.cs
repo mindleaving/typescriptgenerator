@@ -2,7 +2,7 @@
 
 namespace TestObjects
 {
-    public class Product
+    public class Product : IProduct
     {
         public string Manufacturer { get; }
         public string Name { get; }

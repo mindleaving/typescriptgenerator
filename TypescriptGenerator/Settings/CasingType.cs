@@ -1,4 +1,4 @@
-﻿namespace TypescriptGenerator
+﻿namespace TypescriptGenerator.Settings
 {
     public enum CasingType
     {

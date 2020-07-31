@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace TypescriptGenerator
+namespace TypescriptGenerator.Objects
 {
     public class TypescriptEnum : ITypescriptObject
     {

@@ -3,24 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
+using TypescriptGenerator.Objects;
+using TypescriptGenerator.Settings;
 
-namespace TypescriptGenerator
+namespace TypescriptGenerator.Converters
 {
     public class TypescriptClassToInterfaceConverter
     {
         private readonly TypescriptClassToInterfaceConverterSettings settings;
         private readonly TypescriptPropertyConverter propertyConverter;
 
-        public TypescriptClassToInterfaceConverter(TypescriptClassToInterfaceConverterSettings settings = null)
+        public TypescriptClassToInterfaceConverter(
+            TypescriptClassToInterfaceConverterSettings settings = null,
+            List<NamespaceSettings> namespaceSettings = null)
         {
             this.settings = settings ?? new TypescriptClassToInterfaceConverterSettings();
-            propertyConverter = new TypescriptPropertyConverter();
+            propertyConverter = new TypescriptPropertyConverter(
+                this.settings.PropertySettings, 
+                namespaceSettings ?? new List<NamespaceSettings>());
         }
 
         public TypescriptInterface Convert(Type type)
         {
-            if(!type.IsClass)
-                throw new ArgumentException("Type is not a class");
+            if(!type.IsClass && !type.IsInterface)
+                throw new ArgumentException("Type is not a class nor an interface");
 
             var typescriptProperties = type.GetProperties()
                 .Where(ShouldIncludeProperty)
@@ -29,33 +35,14 @@ namespace TypescriptGenerator
 
             var directDependencies = type.GetProperties()
                 .Select(x => x.PropertyType)
-                .Where(x => !IsPrimitiveType(x))
+                .Where(x => !TypeDeterminer.IsPrimitiveType(x))
                 .ToList();
             return new TypescriptInterface(
                 type.Namespace,
                 type.Name, // TODO: Apply transforms
                 typescriptProperties,
-                directDependencies);
-        }
-
-        private static readonly Dictionary<Type, string> PrimitiveTypes = new Dictionary<Type, string>
-        {
-            { typeof(string), "string"},
-            { typeof(void), "void"},
-            { typeof(bool), "boolean"},
-            { typeof(short), "number"},
-            { typeof(ushort), "number"},
-            { typeof(int), "number"},
-            { typeof(uint), "number"},
-            { typeof(double), "number"},
-            { typeof(long), "number"},
-            { typeof(ulong), "number"},
-            { typeof(Guid), "string"},
-            { typeof(object), "{}"}
-        };
-        private bool IsPrimitiveType(Type type)
-        {
-            return PrimitiveTypes.ContainsKey(type);
+                directDependencies,
+                settings.Modifiers);
         }
 
         private bool ShouldIncludeProperty(PropertyInfo property)

@@ -1,45 +1,55 @@
 ﻿using System;
 using System.Linq;
+using TypescriptGenerator.Objects;
+using TypescriptGenerator.Settings;
 
 namespace TypescriptGenerator.Formatter
 {
     public class TypescriptNamespaceFormatter
     {
+        private readonly GeneralFormatterSettings settings;
         private readonly TypescriptEnumFormatter enumFormatter;
         private readonly TypescriptInterfaceFormatter interfaceFormatter;
 
-        public TypescriptNamespaceFormatter()
+        public TypescriptNamespaceFormatter(GeneralFormatterSettings settings)
         {
-            enumFormatter = new TypescriptEnumFormatter();
-            interfaceFormatter = new TypescriptInterfaceFormatter();
+            this.settings = settings;
+            enumFormatter = new TypescriptEnumFormatter(settings);
+            interfaceFormatter = new TypescriptInterfaceFormatter(settings);
         }
 
         public string Format(TypescriptNamespace typescriptNamespace)
         {
+            var modifiers = typescriptNamespace.Modifiers.Any()
+                ? string.Join(" ", typescriptNamespace.Modifiers) + " "
+                : "";
             var formattedTypes = typescriptNamespace.Types
                 .Select(FormatType)
                 .Select(Indent);
-return $@"{string.Join(" ", typescriptNamespace.Modifiers)} namespace {typescriptNamespace.Name} {{
-    {string.Join(Environment.NewLine + Environment.NewLine, formattedTypes)}
+            var subNamespaces = typescriptNamespace.SubNamespaces
+                .Select(Format)
+                .Select(Indent);
+            return $@"{modifiers}namespace {typescriptNamespace.Name} {{
+{string.Join(Environment.NewLine + Environment.NewLine, formattedTypes.Concat(subNamespaces))}
 }}";
         }
 
-        private string FormatType(ITypescriptObject arg)
+        private string FormatType(ITypescriptObject typescriptObject)
         {
-            switch (arg)
+            switch (typescriptObject)
             {
                 case TypescriptEnum typescriptEnum:
                     return enumFormatter.Format(typescriptEnum);
                 case TypescriptInterface typescriptInterface:
                     return interfaceFormatter.Format(typescriptInterface);
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(arg));
+                    throw new ArgumentOutOfRangeException(nameof(typescriptObject));
             }
         }
 
-        private static string Indent(string typeString)
+        private string Indent(string typeString)
         {
-            return "    " + typeString.Replace(Environment.NewLine, Environment.NewLine + "    ");
+            return settings.IndentString + typeString.Replace(Environment.NewLine, Environment.NewLine + settings.IndentString);
         }
     }
 }

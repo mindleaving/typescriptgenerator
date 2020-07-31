@@ -1,4 +1,4 @@
-﻿namespace TypescriptGenerator
+﻿namespace TypescriptGenerator.Objects
 {
     public class TypescriptProperty
     {

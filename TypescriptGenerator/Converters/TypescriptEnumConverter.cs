@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using TypescriptGenerator.Objects;
 
-namespace TypescriptGenerator
+namespace TypescriptGenerator.Converters
 {
     public class TypescriptEnumConverter
     {

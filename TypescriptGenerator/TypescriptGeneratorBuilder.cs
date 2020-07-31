@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using TypescriptGenerator.Settings;
 
 namespace TypescriptGenerator
 {
@@ -29,17 +30,19 @@ namespace TypescriptGenerator
         }
         public static TypescriptGenerator ConfigureNamespace(this TypescriptGenerator generator, string namespaceName, Action<NamespaceSettings> options)
         {
-            var baseSettings = new NamespaceSettings(namespaceName);
-            options(baseSettings);
-            if(baseSettings.Translation != null)
-                generator.NamespaceTranslations.Add(namespaceName, baseSettings.Translation);
-            if(baseSettings.Filename != null)
-                generator.NamespaceFilenameMap.Add(namespaceName, baseSettings.Filename);
+            var namespaceSettings = new NamespaceSettings(namespaceName);
+            options(namespaceSettings);
+            generator.NamespaceSettings.Add(namespaceSettings);
             return generator;
         }
         public static TypescriptGenerator SetOutputDirectory(this TypescriptGenerator generator, string directory)
         {
             generator.OutputDirectory = directory;
+            return generator;
+        }
+        public static TypescriptGenerator SetIndent(this TypescriptGenerator generator, string indentString)
+        {
+            generator.FormatterSettings.IndentString = indentString;
             return generator;
         }
     }

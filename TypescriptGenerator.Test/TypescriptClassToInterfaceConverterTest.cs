@@ -1,5 +1,7 @@
 using Newtonsoft.Json;
 using NUnit.Framework;
+using TypescriptGenerator.Converters;
+using TypescriptGenerator.Settings;
 
 namespace TypescriptGenerator.Test
 {

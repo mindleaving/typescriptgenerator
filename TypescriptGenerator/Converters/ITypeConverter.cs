@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TypescriptGenerator
+namespace TypescriptGenerator.Converters
 {
     public interface ITypeConverter
     {

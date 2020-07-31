@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using TypescriptGenerator.Converters;
 
-namespace TypescriptGenerator
+namespace TypescriptGenerator.Settings
 {
     public class TypescriptPropertyConverterSettings
     {

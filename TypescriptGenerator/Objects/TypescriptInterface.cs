@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace TypescriptGenerator
+namespace TypescriptGenerator.Objects
 {
     public class TypescriptInterface : ITypescriptObject
     {
@@ -9,11 +9,13 @@ namespace TypescriptGenerator
             string ns,
             string name,
             List<TypescriptProperty> properties,
-            List<Type> directDependencies)
+            List<Type> directDependencies,
+            List<string> modifiers)
         {
             Namespace = ns;
             Properties = properties;
             DirectDependencies = directDependencies;
+            Modifiers = modifiers;
             Name = name;
         }
 
