@@ -7,6 +7,7 @@ namespace TestObjects
         public string Manufacturer { get; }
         public string Name { get; }
         public double Price { get; }
+        public ProductType Type { get; }
         public List<ProductCategory> Categories { get; }
     }
 }

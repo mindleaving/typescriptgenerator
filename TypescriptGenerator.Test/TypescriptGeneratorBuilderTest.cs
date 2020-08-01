@@ -16,13 +16,14 @@ namespace TypescriptGenerator.Test
                 .Include<LocalType>()
                 .SetOutputDirectory(@"C:\Temp")
                 .EnumsIntoSeparateFile()
+                .EnumModifiers("export")
+                .NamespaceModifiers("export")
                 .ConfigureNamespace(
                     "TestObjects",
                     options =>
                     {
                         options.Translation = "Models";
                         options.Filename = "models.d.ts";
-                        options.Modifiers.Add("export");
                     })
                 .ConfigureNamespace(
                     "TypescriptGenerator.Test",
@@ -30,7 +31,6 @@ namespace TypescriptGenerator.Test
                     {
                         options.Translation = "ViewModels";
                         options.Filename = "viewModels.d.ts";
-                        options.Modifiers.Add("export");
                     })
                 .Generate();
         }

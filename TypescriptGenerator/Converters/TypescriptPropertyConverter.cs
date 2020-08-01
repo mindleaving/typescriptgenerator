@@ -16,10 +16,11 @@ namespace TypescriptGenerator.Converters
 
         public TypescriptPropertyConverter(
             TypescriptPropertyConverterSettings settings,
+            TypescriptEnumConverterSettings enumSettings,
             List<NamespaceSettings> namespaceSettings)
         {
             this.settings = settings;
-            typeDeterminer = new TypeDeterminer(settings, namespaceSettings);
+            typeDeterminer = new TypeDeterminer(settings, enumSettings, namespaceSettings);
         }
 
         public TypescriptProperty Convert(PropertyInfo property)

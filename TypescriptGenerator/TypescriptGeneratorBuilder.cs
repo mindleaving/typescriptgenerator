@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using TypescriptGenerator.Settings;
 
@@ -25,11 +24,33 @@ namespace TypescriptGenerator
         }
         public static TypescriptGenerator EnumsIntoSeparateFile(this TypescriptGenerator generator)
         {
-            generator.EnumsIntoSeparateFile = true;
+            generator.EnumSettings.EnumsIntoSeparateFile = true;
+            return generator;
+        }
+        public static TypescriptGenerator EnumModifiers(this TypescriptGenerator generator, params string[] modifiers)
+        {
+            foreach (var modifier in modifiers)
+            {
+                if(generator.EnumSettings.Modifiers.Contains(modifier))
+                    continue;
+                generator.EnumSettings.Modifiers.Add(modifier);
+            }
+            return generator;
+        }
+        public static TypescriptGenerator NamespaceModifiers(this TypescriptGenerator generator, params string[] modifiers)
+        {
+            foreach (var modifier in modifiers)
+            {
+                if(generator.NamespaceModifiers.Contains(modifier))
+                    continue;
+                generator.NamespaceModifiers.Add(modifier);
+            }
             return generator;
         }
         public static TypescriptGenerator ConfigureNamespace(this TypescriptGenerator generator, string namespaceName, Action<NamespaceSettings> options)
         {
+            if(generator.NamespaceSettings.Exists(x => x.Namespace == namespaceName))
+                throw new InvalidOperationException($"Namespace '{namespaceName}' is already configured");
             var namespaceSettings = new NamespaceSettings(namespaceName);
             options(namespaceSettings);
             generator.NamespaceSettings.Add(namespaceSettings);
@@ -44,6 +65,14 @@ namespace TypescriptGenerator
         {
             generator.FormatterSettings.IndentString = indentString;
             return generator;
+        }
+
+        public static TypescriptGenerator ReactDefaults(this TypescriptGenerator generator)
+        {
+            return generator
+                .EnumsIntoSeparateFile()
+                .EnumModifiers("export")
+                .NamespaceModifiers("export");
         }
     }
 }

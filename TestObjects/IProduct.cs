@@ -6,6 +6,7 @@ namespace TestObjects
     {
         string Name { get; }
         double Price { get; }
+        ProductType Type { get; }
         List<ProductCategory> Categories { get; }
     }
 }

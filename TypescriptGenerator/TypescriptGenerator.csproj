@@ -2,6 +2,17 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/mindleaving/typescriptgenerator</PackageProjectUrl>
+    <PackageId>mindleaving.TypescriptGenerator</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/mindleaving/typescriptgenerator</RepositoryUrl>
+    <PackageTags>typescript generator</PackageTags>
+    <Description>Generates Typescript interfaces and enums from .NET assemblies and types. Supports configuration for use with Typescript React projects (e.g. enums to separate file outside namepaces).</Description>
+    <Version>0.1.0</Version>
+    <Authors>Jan Scholtyssek</Authors>
+    <Company />
+    <Product>mindleaving.TypescriptGenerator</Product>
   </PropertyGroup>
 
   <ItemGroup>

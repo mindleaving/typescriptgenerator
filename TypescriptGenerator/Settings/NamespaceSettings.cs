@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace TypescriptGenerator.Settings
+﻿namespace TypescriptGenerator.Settings
 {
     public class NamespaceSettings
     {
@@ -12,6 +10,5 @@ namespace TypescriptGenerator.Settings
         public string Namespace { get; }
         public string Translation { get; set; }
         public string Filename { get; set; }
-        public List<string> Modifiers { get; } = new List<string>();
     }
 }

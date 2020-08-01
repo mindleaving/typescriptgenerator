@@ -10,17 +10,22 @@ namespace TypescriptGenerator.Converters
 {
     public class TypescriptClassToInterfaceConverter
     {
+        private readonly List<NamespaceSettings> namespaceSettings;
         private readonly TypescriptClassToInterfaceConverterSettings settings;
         private readonly TypescriptPropertyConverter propertyConverter;
 
         public TypescriptClassToInterfaceConverter(
-            TypescriptClassToInterfaceConverterSettings settings = null,
-            List<NamespaceSettings> namespaceSettings = null)
+            TypescriptClassToInterfaceConverterSettings settings,
+            TypescriptEnumConverterSettings enumSettings,
+            List<NamespaceSettings> namespaceSettings)
         {
-            this.settings = settings ?? new TypescriptClassToInterfaceConverterSettings();
+            if (enumSettings == null) throw new ArgumentNullException(nameof(enumSettings));
+            this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            this.namespaceSettings = namespaceSettings ?? throw new ArgumentNullException(nameof(namespaceSettings));
             propertyConverter = new TypescriptPropertyConverter(
                 this.settings.PropertySettings, 
-                namespaceSettings ?? new List<NamespaceSettings>());
+                enumSettings,
+                this.namespaceSettings);
         }
 
         public TypescriptInterface Convert(Type type)
@@ -37,8 +42,9 @@ namespace TypescriptGenerator.Converters
                 .Select(x => x.PropertyType)
                 .Where(x => !TypeDeterminer.IsPrimitiveType(x))
                 .ToList();
+            var translatedNamespace = NamespaceTranslator.Translate(type.Namespace, namespaceSettings);
             return new TypescriptInterface(
-                type.Namespace,
+                translatedNamespace,
                 type.Name, // TODO: Apply transforms
                 typescriptProperties,
                 directDependencies,

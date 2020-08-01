@@ -42,11 +42,11 @@ namespace TypescriptGenerator
                 if(namespaceTypes.Count == 0 && subNamespaces.Count == 0)
                     continue;
 
-                var matchingSettings = settings.NamespaceSettings.FirstOrDefault(x => x.Namespace == fullNamespaceName);
-                var translatedName = matchingSettings?.Translation ?? fullNamespaceName;
+                var matchingSettings = settings.NamespaceSettings.GetMostSpecificMatch(fullNamespaceName);
+                var translatedName = NamespaceTranslator.Translate(fullNamespaceName, settings.NamespaceSettings);
                 var typescriptNamespace = new TypescriptNamespace(
                     translatedName,
-                    matchingSettings?.Modifiers ?? new List<string>(),
+                    settings.Modifiers,
                     namespaceTypes,
                     subNamespaces,
                     matchingSettings?.Filename);

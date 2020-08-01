@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using TypescriptGenerator.Converters;
@@ -8,6 +9,9 @@ namespace TypescriptGenerator.Test
     [TestFixture]
     public class TypescriptClassToInterfaceConverterTest
     {
+        private readonly TypescriptEnumConverterSettings enumSettings = new TypescriptEnumConverterSettings();
+        private readonly List<NamespaceSettings> namespaceSettings = new List<NamespaceSettings>();
+
         [Test]
         public void AllPublicPropertiesAreTransferred()
         {
@@ -18,7 +22,7 @@ namespace TypescriptGenerator.Test
                     Casing = CasingType.CamelCase
                 }
             };
-            var sut = new TypescriptClassToInterfaceConverter(settings);
+            var sut = new TypescriptClassToInterfaceConverter(settings, enumSettings, namespaceSettings);
 
             var actual = sut.Convert(typeof(TestClass1));
 
@@ -38,7 +42,7 @@ namespace TypescriptGenerator.Test
                     Casing = CasingType.CamelCase
                 }
             };
-            var sut = new TypescriptClassToInterfaceConverter(settings);
+            var sut = new TypescriptClassToInterfaceConverter(settings, enumSettings, namespaceSettings);
 
             var actual = sut.Convert(typeof(TestClass2));
 

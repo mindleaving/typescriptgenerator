@@ -9,13 +9,16 @@ namespace TypescriptGenerator.Converters
     public class TypeDeterminer
     {
         private readonly TypescriptPropertyConverterSettings settings;
+        private readonly TypescriptEnumConverterSettings enumSettings;
         private readonly List<NamespaceSettings> namespaceSettings;
 
         public TypeDeterminer(
             TypescriptPropertyConverterSettings settings, 
+            TypescriptEnumConverterSettings enumSettings,
             List<NamespaceSettings> namespaceSettings)
         {
             this.settings = settings;
+            this.enumSettings = enumSettings;
             this.namespaceSettings = namespaceSettings;
         }
 
@@ -48,6 +51,10 @@ namespace TypescriptGenerator.Converters
         {
             if (IsPrimitiveType(propertyType))
                 return PrimitiveTypes[propertyType];
+            if (propertyType.IsEnum && enumSettings.EnumsIntoSeparateFile)
+            {
+                return "Enums." + propertyType.Name;
+            }
             if (propertyType.IsCollection(out var itemType))
             {
                 var itemTypescriptType = Format(itemType);

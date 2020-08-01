@@ -15,7 +15,8 @@ namespace TypescriptGenerator
         public List<Type> IncludedTypes { get; } = new List<Type>();
         public List<Type> ExcludedTypes { get; } = new List<Type>();
 
-        public bool EnumsIntoSeparateFile { get; set; }
+        public TypescriptEnumConverterSettings EnumSettings { get; } = new TypescriptEnumConverterSettings();
+        public List<string> NamespaceModifiers { get; } = new List<string>();
         public List<NamespaceSettings> NamespaceSettings { get; } = new List<NamespaceSettings>();
         public string OutputDirectory { get; set; } = ".";
         public GeneralFormatterSettings FormatterSettings { get; } = new GeneralFormatterSettings();
@@ -28,24 +29,27 @@ namespace TypescriptGenerator
             var types = CollectTypes();
             IEnumerable<ITypescriptObject> namespacedTypes = types;
             var hasEnums = false;
-            if (EnumsIntoSeparateFile)
+            if (EnumSettings.EnumsIntoSeparateFile)
             {
                 var enums = types.OfType<TypescriptEnum>().ToList();
-                var enumFormatter = new TypescriptEnumFormatter(FormatterSettings);
-                var lines = new List<string>();
-                foreach (var @enum in enums)
-                {
-                    var formattedEnum = enumFormatter.Format(@enum);
-                    lines.Add(formattedEnum);
-                }
-                var outputFilePath = Path.Combine(OutputDirectory, DefaultEnumFilename);
-                File.WriteAllLines(outputFilePath, lines);
-
-                namespacedTypes = types.Except(enums);
                 hasEnums = enums.Any();
+                if (hasEnums)
+                {
+                    var enumFormatter = new TypescriptEnumFormatter(FormatterSettings);
+                    var lines = new List<string>();
+                    foreach (var @enum in enums)
+                    {
+                        var formattedEnum = enumFormatter.Format(@enum);
+                        lines.Add(formattedEnum);
+                    }
+                    var outputFilePath = Path.Combine(OutputDirectory, DefaultEnumFilename);
+                    File.WriteAllLines(outputFilePath, lines);
+
+                    namespacedTypes = types.Except(enums);
+                }
             }
 
-            var namespaceOrganizer = new NamespaceOrganizer(new NamespaceOrganizerSettings(NamespaceSettings));
+            var namespaceOrganizer = new NamespaceOrganizer(new NamespaceOrganizerSettings(NamespaceModifiers, NamespaceSettings));
             var namespaces = namespaceOrganizer.Organize(namespacedTypes.ToList());
             var files = namespaces.GroupBy(x => x.OutputFilename ?? DefaultFilename);
             var namespaceFormatter = new TypescriptNamespaceFormatter(FormatterSettings);
@@ -53,7 +57,7 @@ namespace TypescriptGenerator
             {
                 var fileNamespaces = filename.ToList();
                 var lines = new List<string>();
-                if(EnumsIntoSeparateFile && hasEnums)
+                if(EnumSettings.EnumsIntoSeparateFile && hasEnums)
                 {
                     lines.Add($"import * as Enums from './{DefaultEnumFilename}'");
                     lines.Add("");
@@ -71,9 +75,12 @@ namespace TypescriptGenerator
         private List<ITypescriptObject> CollectTypes()
         {
             var types = new Dictionary<Type, ITypescriptObject>();
-            var typeQueue = new Queue<Type>(IncludedTypes.Except(ExcludedTypes));
-            var classConverter = new TypescriptClassToInterfaceConverter(new TypescriptClassToInterfaceConverterSettings(), NamespaceSettings);
-            var enumConverter = new TypescriptEnumConverter();
+            var typeQueue = new Queue<Type>(IncludedTypes.Distinct().Except(ExcludedTypes));
+            var classConverter = new TypescriptClassToInterfaceConverter(
+                new TypescriptClassToInterfaceConverterSettings(), 
+                EnumSettings,
+                NamespaceSettings);
+            var enumConverter = new TypescriptEnumConverter(EnumSettings, NamespaceSettings);
             while (typeQueue.Count > 0)
             {
                 var type = typeQueue.Dequeue();
