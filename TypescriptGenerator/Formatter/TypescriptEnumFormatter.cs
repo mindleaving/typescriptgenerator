@@ -22,7 +22,7 @@ namespace TypescriptGenerator.Formatter
                 ? string.Join(" ", typescriptEnum.Modifiers) + " "
                 : "";
 return $@"{modifiers}enum {typescriptEnum.Name} {{
-{settings.IndentString}{string.Join(Environment.NewLine + settings.IndentString, values)}
+{settings.IndentString}{string.Join("," + Environment.NewLine + settings.IndentString, values)}
 }}";
         }
     }

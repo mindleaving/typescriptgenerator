@@ -71,7 +71,7 @@ namespace TypescriptGenerator
                 lines.AddRange(imports);
                 if(EnumSettings.EnumsIntoSeparateFile && hasEnums)
                 {
-                    lines.Add($"import * as Enums from './{DefaultEnumFilename.RemoveSuffix(".ts")}'");
+                    lines.Add($"import * as Enums from './{DefaultEnumFilename.RemoveSuffix(".ts")}';");
                 }
                 if(lines.Any())
                     lines.Add("");

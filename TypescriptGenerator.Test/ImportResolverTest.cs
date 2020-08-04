@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using NUnit.Framework;
 using TestObjects;
@@ -14,6 +15,21 @@ namespace TypescriptGenerator.Test
         private readonly string defaultFilename = "default.d.ts";
 
         [Test]
+        public void NoImportGeneratedIfFileDoesntExist()
+        {
+            var namespaces = CreateTestNamespaces();
+            var namespaceSettings = CreateNamespaceSettings();
+            var files = new Dictionary<string, List<TypescriptNamespace>>(); // Empty file list
+            var modelsNamespace = namespaces.Take(1).ToList();
+            Assume.That(modelsNamespace[0].TranslatedName, Is.EqualTo("Models"));
+            var sut = new ImportResolver(files, namespaceSettings, defaultFilename);
+
+            var actual = sut.ResolveForFile(modelsNamespace, "models.d.ts").ToList();
+
+            Assert.That(actual, Is.Empty);
+        }
+
+        [Test]
         public void ResolveForFileReturnsExpectedImports()
         {
             var namespaces = CreateTestNamespaces();
@@ -26,7 +42,7 @@ namespace TypescriptGenerator.Test
             var actual = sut.ResolveForFile(modelsNamespace, "models.d.ts").ToList();
 
             Assert.That(actual.Count, Is.EqualTo(1));
-            Assert.That(actual[0], Is.EqualTo("import { ViewModels } from './viewModels.d'"));
+            Assert.That(actual[0], Is.EqualTo("import { ViewModels } from './viewModels.d';"));
         }
 
         private List<NamespaceSettings> CreateNamespaceSettings()

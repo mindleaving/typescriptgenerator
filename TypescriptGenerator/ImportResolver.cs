@@ -35,9 +35,14 @@ namespace TypescriptGenerator
                 .Except(new[] {filename});
             foreach (var dependentOnFile in dependentOnFiles)
             {
+                if(!files.ContainsKey(dependentOnFile))
+                    continue;
                 var dependentOnNamespaces = files[dependentOnFile]
-                    .Select(x => x.TranslatedName);
-                yield return $"import {{ {string.Join(", ", dependentOnNamespaces)} }} from './{dependentOnFile.RemoveSuffix(".ts")}'";
+                    .Select(x => x.TranslatedName)
+                    .ToList();
+                if(!dependentOnNamespaces.Any())
+                    continue;
+                yield return $"import {{ {string.Join(", ", dependentOnNamespaces)} }} from './{dependentOnFile.RemoveSuffix(".ts")}';";
             }
         }
     }
