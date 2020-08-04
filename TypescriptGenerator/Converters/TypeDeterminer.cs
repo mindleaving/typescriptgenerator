@@ -36,7 +36,7 @@ namespace TypescriptGenerator.Converters
             { typeof(double), "number"},
             { typeof(decimal), "number"},
             { typeof(Guid), "string"},
-            { typeof(object), "{}"},
+            { typeof(object), "any"},
             { typeof(DateTime), "Date"},
             { typeof(DateTimeOffset), "Date"},
             { typeof(TimeSpan), "string"}
@@ -54,6 +54,13 @@ namespace TypescriptGenerator.Converters
             if (propertyType.IsEnum && enumSettings.EnumsIntoSeparateFile)
             {
                 return "Enums." + propertyType.Name;
+            }
+
+            if (propertyType.IsDictionary(out var keyType, out var valueType))
+            {
+                var keyTypescriptType = Format(keyType);
+                var valueTypescriptType = Format(valueType);
+                return $"[key: {keyTypescriptType}]: {valueTypescriptType}";
             }
             if (propertyType.IsCollection(out var itemType))
             {

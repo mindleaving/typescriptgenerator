@@ -22,7 +22,7 @@ namespace TypescriptGenerator.Converters
         public TypescriptEnum Convert(Type type)
         {
             if(!type.IsEnum)
-                throw new ArgumentException("Type is not an enum");
+                throw new ArgumentException($"Type '{type.FullName}' is not an enum");
 
             var translatedNamespace = settings.EnumsIntoSeparateFile
                 ? "Enums"

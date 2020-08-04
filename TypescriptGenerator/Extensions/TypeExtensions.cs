@@ -7,6 +7,11 @@ namespace TypescriptGenerator.Extensions
 {
     public static class TypeExtensions
     {
+        public static bool IsStruct(this Type type)
+        {
+            return type.IsValueType && !type.IsEnum;
+        }
+
         public static bool IsNullable(this Type type)
         {
             return Nullable.GetUnderlyingType(type) != null;
@@ -20,7 +25,7 @@ namespace TypescriptGenerator.Extensions
                 return true;
             }
 
-            var ienumerableInterface = propertyType.GetInterfaces().Concat(new []{ propertyType })
+            var ienumerableInterface = propertyType.GetInterfaces().Concat(new [] {propertyType})
                 .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>));
             if (ienumerableInterface != null)
             {
@@ -36,6 +41,32 @@ namespace TypescriptGenerator.Extensions
 
             itemType = null;
             return false;
+        }
+
+        public static bool IsDictionary(
+            this Type propertyType,
+            out Type keyType,
+            out Type valueType)
+        {
+            if (!typeof(IDictionary).IsAssignableFrom(propertyType))
+            {
+                keyType = null;
+                valueType = null;
+                return false;
+            }
+
+            if(propertyType.GetGenericArguments().Length == 2)
+            {
+                keyType = propertyType.GetGenericArguments()[0];
+                valueType = propertyType.GetGenericArguments()[1];
+            }
+            else
+            {
+                keyType = typeof(string);
+                valueType = typeof(object);
+            }
+
+            return true;
         }
     }
 }

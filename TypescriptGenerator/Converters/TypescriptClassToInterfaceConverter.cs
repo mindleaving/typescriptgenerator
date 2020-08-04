@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
+using TypescriptGenerator.Extensions;
 using TypescriptGenerator.Objects;
 using TypescriptGenerator.Settings;
 
@@ -30,8 +31,8 @@ namespace TypescriptGenerator.Converters
 
         public TypescriptInterface Convert(Type type)
         {
-            if(!type.IsClass && !type.IsInterface)
-                throw new ArgumentException("Type is not a class nor an interface");
+            if(!type.IsClass && !type.IsInterface && !type.IsStruct())
+                throw new ArgumentException($"Type '{type.FullName}' is neither a class, struct nor an interface");
 
             var typescriptProperties = type.GetProperties()
                 .Where(ShouldIncludeProperty)

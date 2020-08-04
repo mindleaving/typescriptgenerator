@@ -20,6 +20,7 @@ namespace TypescriptGenerator
         public List<NamespaceSettings> NamespaceSettings { get; } = new List<NamespaceSettings>();
         public string OutputDirectory { get; set; } = ".";
         public GeneralFormatterSettings FormatterSettings { get; } = new GeneralFormatterSettings();
+        public List<ITypeConverter> CustomTypeConverters { get; } = new List<ITypeConverter>();
 
         public string DefaultFilename { get; set; } = "models.d.ts";
         public string DefaultEnumFilename { get; set; } = "enums.d.ts";
@@ -57,6 +58,7 @@ namespace TypescriptGenerator
             {
                 var fileNamespaces = filename.ToList();
                 var lines = new List<string>();
+                // TODO: Determine namespaces and files that this file depends on and import them
                 if(EnumSettings.EnumsIntoSeparateFile && hasEnums)
                 {
                     lines.Add($"import * as Enums from './{DefaultEnumFilename}'");
@@ -76,10 +78,7 @@ namespace TypescriptGenerator
         {
             var types = new Dictionary<Type, ITypescriptObject>();
             var typeQueue = new Queue<Type>(IncludedTypes.Distinct().Except(ExcludedTypes));
-            var classConverter = new TypescriptClassToInterfaceConverter(
-                new TypescriptClassToInterfaceConverterSettings(), 
-                EnumSettings,
-                NamespaceSettings);
+            var classConverter = CreateTypescriptClassToInterfaceConverter();
             var enumConverter = new TypescriptEnumConverter(EnumSettings, NamespaceSettings);
             while (typeQueue.Count > 0)
             {
@@ -107,6 +106,14 @@ namespace TypescriptGenerator
             }
 
             return types.Values.ToList();
+        }
+
+        private TypescriptClassToInterfaceConverter CreateTypescriptClassToInterfaceConverter()
+        {
+            var classToInterfaceConverterSettings = new TypescriptClassToInterfaceConverterSettings();
+            classToInterfaceConverterSettings.PropertySettings.TypeConverters.AddRange(CustomTypeConverters);
+            var classConverter = new TypescriptClassToInterfaceConverter(classToInterfaceConverterSettings, EnumSettings, NamespaceSettings);
+            return classConverter;
         }
     }
 }

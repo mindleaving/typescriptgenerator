@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using TypescriptGenerator.Converters;
 using TypescriptGenerator.Settings;
 
 namespace TypescriptGenerator
@@ -61,12 +62,26 @@ namespace TypescriptGenerator
             generator.OutputDirectory = directory;
             return generator;
         }
+        public static TypescriptGenerator SetDefaultFilenameForInterfaces(this TypescriptGenerator generator, string filename)
+        {
+            generator.DefaultFilename = filename;
+            return generator;
+        }
+        public static TypescriptGenerator SetDefaultFilenameForEnums(this TypescriptGenerator generator, string filename)
+        {
+            generator.DefaultEnumFilename = filename;
+            return generator;
+        }
         public static TypescriptGenerator SetIndent(this TypescriptGenerator generator, string indentString)
         {
             generator.FormatterSettings.IndentString = indentString;
             return generator;
         }
-
+        public static TypescriptGenerator CustomizeType(this TypescriptGenerator generator, Func<Type, bool> matchFunc, Func<Type, string> convertFunc)
+        {
+            generator.CustomTypeConverters.Add(new GenericTypeConverter(matchFunc, convertFunc));
+            return generator;
+        }
         public static TypescriptGenerator ReactDefaults(this TypescriptGenerator generator)
         {
             return generator

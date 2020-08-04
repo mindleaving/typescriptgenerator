@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using TestObjects;
@@ -58,6 +59,24 @@ namespace TypescriptGenerator.Test
         public void ProductIsNotCollection()
         {
             var actual = typeof(Product).IsCollection(out _);
+
+            Assert.That(actual, Is.False);
+        }
+
+        [Test]
+        public void IsDictionaryReturnsCorrectKeyValueTypes()
+        {
+            var isDictionary = typeof(Dictionary<int, Guid>).IsDictionary(out var keyType, out var valueType);
+
+            Assert.That(isDictionary, Is.True);
+            Assert.That(keyType, Is.EqualTo(typeof(int)));
+            Assert.That(valueType, Is.EqualTo(typeof(Guid)));
+        }
+
+        [Test]
+        public void ProductIsNotDictionary()
+        {
+            var actual = typeof(Product).IsDictionary(out _, out _);
 
             Assert.That(actual, Is.False);
         }
