@@ -7,8 +7,6 @@ namespace TypescriptGenerator.Objects
         public TypescriptNamespace(
             string translatedName,
             string translatedFullName,
-            string originalName,
-            string originalFullName,
             List<string> modifiers,
             List<ITypescriptObject> types,
             List<TypescriptNamespace> subNamespaces,
@@ -16,8 +14,6 @@ namespace TypescriptGenerator.Objects
         {
             TranslatedName = translatedName;
             TranslatedFullName = translatedFullName;
-            OriginalName = originalName;
-            OriginalFullName = originalFullName;
             Modifiers = modifiers;
             Types = types;
             SubNamespaces = subNamespaces;
@@ -26,8 +22,6 @@ namespace TypescriptGenerator.Objects
 
         public string TranslatedName { get; }
         public string TranslatedFullName { get; }
-        public string OriginalName { get; }
-        public string OriginalFullName { get; }
         public string OutputFilename { get; }
         public List<string> Modifiers { get; }
         public List<ITypescriptObject> Types { get; }

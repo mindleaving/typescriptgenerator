@@ -25,7 +25,11 @@ namespace TypescriptGenerator.Test
         public void PrimitiveTypesAsExpected(Type input, string expected)
         {
             var sut = new TypeDeterminer(propertySettings, enumSettings, namespaceSettings);
-            Assert.That(sut.Format(input), Is.EqualTo(expected));
+
+            var actual = sut.Determine(input);
+
+            Assert.That(actual.FormattedType, Is.EqualTo(expected));
+            Assert.That(actual.Dependencies, Is.Empty);
         }
 
         [Test]
@@ -34,7 +38,10 @@ namespace TypescriptGenerator.Test
             var input = typeof(Dictionary<int, string>);
             var sut = new TypeDeterminer(propertySettings, enumSettings, namespaceSettings);
 
-            Assert.That(sut.Format(input), Is.EqualTo("{ [key: number]: string }"));
+            var actual = sut.Determine(input);
+
+            Assert.That(actual.FormattedType, Is.EqualTo("{ [key: number]: string }"));
+            Assert.That(actual.Dependencies, Is.Empty);
         }
 
         [Test]
@@ -43,11 +50,16 @@ namespace TypescriptGenerator.Test
             var input = typeof(GenericClass<string, Product>);
             var sut = new TypeDeterminer(propertySettings, enumSettings, namespaceSettings);
 
-            Assert.That(sut.Format(input), Is.EqualTo("TypescriptGenerator.Test.GenericClass<string,TestObjects.Product>"));
+            var actual = sut.Determine(input);
+
+            Assert.That(actual.FormattedType, Is.EqualTo("TypescriptGenerator.Test.GenericClass<string,TestObjects.Product>"));
+            Assert.That(actual.Dependencies, Is.EquivalentTo(new [] { typeof(GenericClass<,>), typeof(Product) }));
         }
 
         private class GenericClass<T1,T2>
         {
+            public T1 Item1 { get; }
+            public T2 Item2 { get; }
         }
     }
 }

@@ -27,10 +27,12 @@ namespace TypescriptGenerator.Converters
         {
             var propertyName = property.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName
                                ?? ApplyCasing(property.Name, settings.Casing);
+            var typeDeterminerResult = typeDeterminer.Determine(property.PropertyType);
             return new TypescriptProperty(
                 propertyName,
-                typeDeterminer.Format(property.PropertyType),
-                property.PropertyType.IsNullable());
+                typeDeterminerResult.FormattedType,
+                property.PropertyType.IsNullable(),
+                typeDeterminerResult.Dependencies);
         }
 
         private string ApplyCasing(

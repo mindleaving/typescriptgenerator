@@ -34,22 +34,24 @@ namespace TypescriptGenerator.Converters
             if(!type.IsClass && !type.IsInterface && !type.IsStruct())
                 throw new ArgumentException($"Type '{type.FullName}' is neither a class, struct nor an interface");
 
-            var typescriptProperties = type.GetProperties()
+            var effectiveType = type;
+            if (type.IsGenericType)
+                effectiveType = type.GetGenericTypeDefinition();
+            var typescriptProperties = effectiveType.GetProperties()
                 .Where(ShouldIncludeProperty)
                 .Select(propertyConverter.Convert)
                 .ToList();
 
-            var directDependencies = type.GetProperties()
-                .Select(x => x.PropertyType)
-                .Where(TypeDeterminer.NeedsResolving)
+            var dependencies = typescriptProperties
+                .SelectMany(x => x.Dependencies)
                 .ToList();
-            var translatedNamespace = NamespaceTranslator.Translate(type.Namespace, namespaceSettings);
+            var translatedNamespace = NamespaceTranslator.Translate(effectiveType.Namespace, namespaceSettings);
             return new TypescriptInterface(
-                type.Namespace,
+                effectiveType.Namespace,
                 translatedNamespace,
                 type.Name, // TODO: Apply transforms
                 typescriptProperties,
-                directDependencies,
+                dependencies,
                 settings.Modifiers);
         }
 

@@ -22,36 +22,37 @@ namespace TypescriptGenerator
 
         private List<TypescriptNamespace> OrganizeSubnamespaces(
             List<ITypescriptObject> typescriptObjects,
-            string commonPrefix = null,
             string commonTranslatedPrefix = null)
         {
             IEnumerable<ITypescriptObject> matchingTypes = typescriptObjects;
-            if (commonPrefix != null)
-                matchingTypes = matchingTypes.Where(x => x.OriginalNamespace.StartsWith(commonPrefix));
-            var distinctNamespaceNames = matchingTypes
-                .Select(x => (commonPrefix != null ? x.OriginalNamespace.RemovePrefix(commonPrefix) : x.OriginalNamespace).Split('.')[0])
+            if (commonTranslatedPrefix != null)
+                matchingTypes = matchingTypes.Where(x => x.TranslatedNamespace.StartsWith(commonTranslatedPrefix));
+            var distinctTranslatedNamespaceNames = matchingTypes
+                .Select(x => commonTranslatedPrefix != null 
+                    ? x.TranslatedNamespace.RemovePrefix(commonTranslatedPrefix) 
+                    : x.TranslatedNamespace)
+                .Select(x => x.Split('.')[0])
                 .Distinct();
             var namespaces = new List<TypescriptNamespace>();
-            foreach (var originalName in distinctNamespaceNames)
+            foreach (var translatedName in distinctTranslatedNamespaceNames)
             {
-                var originalFullName = commonPrefix + originalName;
-                var matchingSettings = settings.NamespaceSettings.GetMostSpecificMatch(originalFullName);
-                var translatedFullName = NamespaceTranslator.Translate(originalFullName, settings.NamespaceSettings);
-                var translatedName = translatedFullName.RemovePrefix(commonTranslatedPrefix);
+                var translatedFullName = commonTranslatedPrefix + translatedName;
+                var matchingSettings = settings.NamespaceSettings
+                    .Where(x => translatedFullName.StartsWith(x.Translation))
+                    .OrderByDescending(x => x.Translation.Length)
+                    .FirstOrDefault();
 
-                var namespaceTypes = typescriptObjects.Where(x => x.OriginalNamespace == originalFullName).ToList();
+                var namespaceTypes = typescriptObjects.Where(x => x.TranslatedNamespace == translatedFullName).ToList();
                 var subNamespaceTypes = typescriptObjects
-                    .Where(x => x.OriginalNamespace.StartsWith(originalFullName + "."))
+                    .Where(x => x.TranslatedNamespace.StartsWith(translatedFullName + "."))
                     .ToList();
-                var subNamespaces = OrganizeSubnamespaces(subNamespaceTypes, originalFullName + ".", translatedFullName + ".");
+                var subNamespaces = OrganizeSubnamespaces(subNamespaceTypes, translatedFullName + ".");
                 if(namespaceTypes.Count == 0 && subNamespaces.Count == 0)
                     continue;
 
                 var typescriptNamespace = new TypescriptNamespace(
                     translatedName,
                     translatedFullName,
-                    originalName,
-                    originalFullName,
                     settings.Modifiers,
                     namespaceTypes,
                     subNamespaces,

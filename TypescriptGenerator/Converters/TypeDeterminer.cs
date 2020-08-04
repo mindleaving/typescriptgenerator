@@ -6,6 +6,19 @@ using TypescriptGenerator.Settings;
 
 namespace TypescriptGenerator.Converters
 {
+    public class TypeDeterminerResult
+    {
+        public TypeDeterminerResult(
+            string formattedType,
+            List<Type> dependencies)
+        {
+            FormattedType = formattedType;
+            Dependencies = dependencies;
+        }
+
+        public string FormattedType { get; }
+        public List<Type> Dependencies { get; }
+    }
     public class TypeDeterminer
     {
         private readonly TypescriptPropertyConverterSettings settings;
@@ -47,52 +60,61 @@ namespace TypescriptGenerator.Converters
             return PrimitiveTypes.ContainsKey(type);
         }
 
-        public string Format(Type propertyType)
+        public TypeDeterminerResult Determine(Type propertyType)
         {
+            if(propertyType.IsGenericParameter)
+                return new TypeDeterminerResult(propertyType.Name, new List<Type>());
             if (IsPrimitiveType(propertyType))
-                return PrimitiveTypes[propertyType];
+                return new TypeDeterminerResult(PrimitiveTypes[propertyType], new List<Type>());
             if (propertyType.IsNullable())
             {
                 var underlyingType = Nullable.GetUnderlyingType(propertyType);
-                return $"{Format(underlyingType)} | null";
+                var underlyingTypeResult = Determine(underlyingType);
+                return new TypeDeterminerResult(
+                    $"{underlyingTypeResult.FormattedType} | null",
+                    underlyingTypeResult.Dependencies);
             }
             if (propertyType.IsEnum && enumSettings.EnumsIntoSeparateFile)
             {
-                return "Enums." + propertyType.Name;
+                return new TypeDeterminerResult("Enums." + propertyType.Name, new List<Type>());
             }
 
             if (propertyType.IsDictionary(out var keyType, out var valueType))
             {
-                var keyTypescriptType = Format(keyType);
-                var valueTypescriptType = Format(valueType);
-                return $"{{ [key: {keyTypescriptType}]: {valueTypescriptType} }}";
+                var keyTypeResult = Determine(keyType);
+                var valueTypeResult = Determine(valueType);
+                return new TypeDeterminerResult(
+                    $"{{ [key: {keyTypeResult.FormattedType}]: {valueTypeResult.FormattedType} }}",
+                    keyTypeResult.Dependencies.Concat(valueTypeResult.Dependencies).ToList()
+                );
             }
             if (propertyType.IsCollection(out var itemType))
             {
-                var itemTypescriptType = Format(itemType);
-                return $"{itemTypescriptType}[]";
+                var itemTypeResult = Determine(itemType);
+                return new TypeDeterminerResult(
+                    $"{itemTypeResult.FormattedType}[]",
+                    itemTypeResult.Dependencies
+                );
             }
             var matchingTypeConverter = settings.TypeConverters.FirstOrDefault(x => x.IsMatchingType(propertyType));
             if (matchingTypeConverter != null)
-                return matchingTypeConverter.Convert(propertyType);
+                return new TypeDeterminerResult(matchingTypeConverter.Convert(propertyType), new List<Type>());
             var translatedNamespace = NamespaceTranslator.Translate(propertyType.Namespace, namespaceSettings);
             if (propertyType.IsGenericType)
             {
-                var generics = $"<{string.Join(",", propertyType.GetGenericArguments().Select(Format))}>";
-                return $"{translatedNamespace}.{TypeExtensions.StripGenericTypeSuffix(propertyType.Name)}{generics}";
+                var genericResults = propertyType.GetGenericArguments()
+                    .Select(Determine)
+                    .ToList();
+                var generics = $"<{string.Join(",", genericResults.Select(x => x.FormattedType))}>";
+                return new TypeDeterminerResult(
+                    $"{translatedNamespace}.{propertyType.Name.StripGenericTypeSuffix()}{generics}",
+                    genericResults.SelectMany(x => x.Dependencies).Concat(new []{ propertyType.GetGenericTypeDefinition() }).ToList()
+                );
             }
-            return $"{translatedNamespace}.{propertyType.Name}";
-        }
-
-        public static bool NeedsResolving(Type type)
-        {
-            if (IsPrimitiveType(type))
-                return false;
-            if (type.IsCollection(out _))
-                return false;
-            if (type.IsDictionary(out _, out _))
-                return false;
-            return true;
+            return new TypeDeterminerResult(
+                $"{translatedNamespace}.{propertyType.Name}",
+                new List<Type> { propertyType}
+            );
         }
     }
 }

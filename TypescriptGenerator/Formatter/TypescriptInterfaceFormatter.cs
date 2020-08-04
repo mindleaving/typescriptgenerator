@@ -29,7 +29,7 @@ $@"{modifiers}interface {tsInterface.Name} {{
         private string FormatProperty(TypescriptProperty property)
         {
             var optionalModifier = property.IsOptional ? "?" : "";
-            return $"{property.Name}{optionalModifier}: {property.Type};";
+            return $"{property.Name}{optionalModifier}: {property.FormattedType};";
         }
     }
 }

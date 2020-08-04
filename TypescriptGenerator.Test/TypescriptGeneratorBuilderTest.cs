@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using NUnit.Framework;
 using TestObjects;
 
 namespace TypescriptGenerator.Test
@@ -37,6 +38,7 @@ namespace TypescriptGenerator.Test
 
         public class LocalType
         {
+            public List<Product> Products { get; }
         }
     }
 }

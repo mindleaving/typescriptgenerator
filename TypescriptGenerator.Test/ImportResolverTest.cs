@@ -53,8 +53,6 @@ namespace TypescriptGenerator.Test
                 new TypescriptNamespace(
                     "Models",
                     "Models",
-                    "TypescriptGenerator",
-                    "TypescriptGenerator",
                     new List<string>(),
                     new List<ITypescriptObject>
                     {
@@ -74,8 +72,6 @@ namespace TypescriptGenerator.Test
                 new TypescriptNamespace(
                     "ViewModels",
                     "ViewModels",
-                    "TestObjects",
-                    "TestObjects",
                     new List<string>(),
                     new List<ITypescriptObject>
                     {

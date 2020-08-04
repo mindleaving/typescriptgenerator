@@ -1,18 +1,24 @@
-﻿namespace TypescriptGenerator.Objects
+﻿using System;
+using System.Collections.Generic;
+
+namespace TypescriptGenerator.Objects
 {
     public class TypescriptProperty
     {
         public TypescriptProperty(string name,
-            string type,
-            bool isOptional)
+            string formattedType,
+            bool isOptional,
+            List<Type> dependencies)
         {
             Name = name;
-            Type = type;
+            FormattedType = formattedType;
             IsOptional = isOptional;
+            Dependencies = dependencies;
         }
 
         public string Name { get; }
-        public string Type { get; }
+        public string FormattedType { get; }
         public bool IsOptional { get; }
+        public List<Type> Dependencies { get; }
     }
 }

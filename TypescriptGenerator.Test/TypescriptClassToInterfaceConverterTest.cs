@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Commons.Physics;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using TestObjects;
 using TypescriptGenerator.Converters;
 using TypescriptGenerator.Settings;
 using TypescriptGenerator.Test.CustomTypeConverters;
@@ -93,7 +94,18 @@ namespace TypescriptGenerator.Test
             Assert.That(actual.Properties.Count, Is.EqualTo(2));
             Assert.That(actual.Properties.Exists(x => x.Name == "volume"));
             var volumeProperty = actual.Properties.Find(x => x.Name == "volume");
-            Assert.That(volumeProperty.Type, Is.EqualTo("math.Unit"));
+            Assert.That(volumeProperty.FormattedType, Is.EqualTo("math.Unit"));
+        }
+
+        [Test]
+        public void InterfaceFromGeneric()
+        {
+            var sut = new TypescriptClassToInterfaceConverter(new TypescriptClassToInterfaceConverterSettings(), enumSettings, namespaceSettings);
+
+            var actual = sut.Convert(typeof(GenericClass<string,Product>));
+
+            Assert.That(actual.Properties.Find(x => x.Name == "item1").FormattedType, Is.EqualTo("T1"));
+            Assert.That(actual.Properties.Find(x => x.Name == "item2").FormattedType, Is.EqualTo("T2"));
         }
 
         private class TestClass1
@@ -121,6 +133,12 @@ namespace TypescriptGenerator.Test
         {
             public string Id { get; }
             public UnitValue Volume { get; }
+        }
+
+        private class GenericClass<T1,T2>
+        {
+            public T1 Item1 { get; }
+            public T2 Item2 { get; }
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TypescriptGenerator.Converters;
-using TypescriptGenerator.Extensions;
 using TypescriptGenerator.Formatter;
 using TypescriptGenerator.Objects;
 using TypescriptGenerator.Settings;
