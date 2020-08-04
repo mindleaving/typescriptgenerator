@@ -28,7 +28,8 @@ namespace TypescriptGenerator.Converters
                 ? "Enums"
                 : NamespaceTranslator.Translate(type.Namespace, namespaceSettings);
             return new TypescriptEnum(
-                translatedNamespace, 
+                type.Namespace, 
+                translatedNamespace,
                 type.Name, // TODO: Apply transforms
                 settings.Modifiers, 
                 Enum.GetNames(type).ToList());

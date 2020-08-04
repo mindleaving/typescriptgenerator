@@ -51,6 +51,11 @@ namespace TypescriptGenerator.Converters
         {
             if (IsPrimitiveType(propertyType))
                 return PrimitiveTypes[propertyType];
+            if (propertyType.IsNullable())
+            {
+                var underlyingType = Nullable.GetUnderlyingType(propertyType);
+                return $"{Format(underlyingType)} | null";
+            }
             if (propertyType.IsEnum && enumSettings.EnumsIntoSeparateFile)
             {
                 return "Enums." + propertyType.Name;
@@ -60,7 +65,7 @@ namespace TypescriptGenerator.Converters
             {
                 var keyTypescriptType = Format(keyType);
                 var valueTypescriptType = Format(valueType);
-                return $"[key: {keyTypescriptType}]: {valueTypescriptType}";
+                return $"{{ [key: {keyTypescriptType}]: {valueTypescriptType} }}";
             }
             if (propertyType.IsCollection(out var itemType))
             {
@@ -70,19 +75,24 @@ namespace TypescriptGenerator.Converters
             var matchingTypeConverter = settings.TypeConverters.FirstOrDefault(x => x.IsMatchingType(propertyType));
             if (matchingTypeConverter != null)
                 return matchingTypeConverter.Convert(propertyType);
-            if (propertyType.Namespace == null)
-                return propertyType.Name;
-            var matchingNamespaceSettings = namespaceSettings
-                .Where(x => propertyType.Namespace.Contains(x.Namespace))
-                .OrderByDescending(x => x.Namespace.Length)
-                .FirstOrDefault();
-            if (matchingNamespaceSettings != null)
+            var translatedNamespace = NamespaceTranslator.Translate(propertyType.Namespace, namespaceSettings);
+            if (propertyType.IsGenericType)
             {
-                return propertyType.FullName.Replace(
-                    matchingNamespaceSettings.Namespace,
-                    matchingNamespaceSettings.Translation);
+                var generics = $"<{string.Join(",", propertyType.GetGenericArguments().Select(Format))}>";
+                return $"{translatedNamespace}.{TypeExtensions.StripGenericTypeSuffix(propertyType.Name)}{generics}";
             }
-            return propertyType.FullName;
+            return $"{translatedNamespace}.{propertyType.Name}";
+        }
+
+        public static bool NeedsResolving(Type type)
+        {
+            if (IsPrimitiveType(type))
+                return false;
+            if (type.IsCollection(out _))
+                return false;
+            if (type.IsDictionary(out _, out _))
+                return false;
+            return true;
         }
     }
 }

@@ -2,6 +2,7 @@
 {
     public interface ITypescriptObject
     {
-        string Namespace { get; }
+        string OriginalNamespace { get; }
+        string TranslatedNamespace { get; }
     }
 }

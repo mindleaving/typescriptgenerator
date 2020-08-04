@@ -68,5 +68,13 @@ namespace TypescriptGenerator.Extensions
 
             return true;
         }
+
+        public static string StripGenericTypeSuffix(this string genericTypeName)
+        {
+            var genericSuffixPosition = genericTypeName.IndexOf('`');
+            if (genericSuffixPosition < 0)
+                return genericTypeName;
+            return genericTypeName.Substring(0, genericSuffixPosition);
+        }
     }
 }

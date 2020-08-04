@@ -5,18 +5,21 @@ namespace TypescriptGenerator.Objects
     public class TypescriptEnum : ITypescriptObject
     {
         public TypescriptEnum(
-            string namespaceName,
+            string originalNamespace,
+            string translatedNamespace,
             string name,
             List<string> modifiers,
             List<string> values)
         {
-            Namespace = namespaceName;
+            OriginalNamespace = originalNamespace;
+            TranslatedNamespace = translatedNamespace;
             Name = name;
             Modifiers = modifiers;
             Values = values;
         }
 
-        public string Namespace { get; }
+        public string OriginalNamespace { get; }
+        public string TranslatedNamespace { get; }
         public string Name { get; }
         public List<string> Modifiers { get; }
         public List<string> Values { get; }

@@ -80,5 +80,19 @@ namespace TypescriptGenerator.Test
 
             Assert.That(actual, Is.False);
         }
+
+        [Test]
+        public void StripGenericTypeSuffixReturnsUnchangedStringIfNoGenericSuffix()
+        {
+            var input = "MyNonGenericClass";
+            Assert.That(input.StripGenericTypeSuffix(), Is.EqualTo(input));
+        }
+
+        [Test]
+        public void StripGenericTypeSuffixRemovesGenericSuffix()
+        {
+            var input = "MyNonGenericClass`2";
+            Assert.That(input.StripGenericTypeSuffix(), Is.EqualTo("MyNonGenericClass"));
+        }
     }
 }

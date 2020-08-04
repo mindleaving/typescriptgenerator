@@ -41,10 +41,11 @@ namespace TypescriptGenerator.Converters
 
             var directDependencies = type.GetProperties()
                 .Select(x => x.PropertyType)
-                .Where(x => !TypeDeterminer.IsPrimitiveType(x))
+                .Where(TypeDeterminer.NeedsResolving)
                 .ToList();
             var translatedNamespace = NamespaceTranslator.Translate(type.Namespace, namespaceSettings);
             return new TypescriptInterface(
+                type.Namespace,
                 translatedNamespace,
                 type.Name, // TODO: Apply transforms
                 typescriptProperties,

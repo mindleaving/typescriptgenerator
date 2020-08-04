@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using TypescriptGenerator.Converters;
+using TypescriptGenerator.Extensions;
 using TypescriptGenerator.Formatter;
 using TypescriptGenerator.Objects;
 using TypescriptGenerator.Settings;
@@ -52,13 +53,18 @@ namespace TypescriptGenerator
 
             var namespaceOrganizer = new NamespaceOrganizer(new NamespaceOrganizerSettings(NamespaceModifiers, NamespaceSettings));
             var namespaces = namespaceOrganizer.Organize(namespacedTypes.ToList());
-            var files = namespaces.GroupBy(x => x.OutputFilename ?? DefaultFilename);
+            var files = namespaces
+                .GroupBy(x => x.OutputFilename ?? DefaultFilename)
+                .ToDictionary(g => g.Key, g => g.ToList());
             var namespaceFormatter = new TypescriptNamespaceFormatter(FormatterSettings);
-            foreach (var filename in files)
+            var importResolver = new ImportResolver(files, NamespaceSettings, DefaultFilename);
+            foreach (var kvp in files)
             {
-                var fileNamespaces = filename.ToList();
+                var filename = kvp.Key;
+                var fileNamespaces = kvp.Value;
                 var lines = new List<string>();
-                // TODO: Determine namespaces and files that this file depends on and import them
+                var imports = importResolver.ResolveForFile(fileNamespaces, filename);
+                lines.AddRange(imports);
                 if(EnumSettings.EnumsIntoSeparateFile && hasEnums)
                 {
                     lines.Add($"import * as Enums from './{DefaultEnumFilename}'");
@@ -69,7 +75,7 @@ namespace TypescriptGenerator
                     var formattedNamespace = namespaceFormatter.Format(ns);
                     lines.Add(formattedNamespace);
                 }
-                var outputFilePath = Path.Combine(OutputDirectory, filename.Key);
+                var outputFilePath = Path.Combine(OutputDirectory, filename);
                 File.WriteAllLines(outputFilePath, lines);
             }
         }

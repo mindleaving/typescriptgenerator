@@ -29,7 +29,7 @@ namespace TypescriptGenerator.Formatter
             var subNamespaces = typescriptNamespace.SubNamespaces
                 .Select(Format)
                 .Select(Indent);
-            return $@"{modifiers}namespace {typescriptNamespace.Name} {{
+            return $@"{modifiers}namespace {typescriptNamespace.TranslatedName} {{
 {string.Join(Environment.NewLine + Environment.NewLine, formattedTypes.Concat(subNamespaces))}
 }}";
         }
