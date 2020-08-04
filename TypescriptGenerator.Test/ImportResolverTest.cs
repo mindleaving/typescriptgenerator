@@ -26,7 +26,7 @@ namespace TypescriptGenerator.Test
             var actual = sut.ResolveForFile(modelsNamespace, "models.d.ts").ToList();
 
             Assert.That(actual.Count, Is.EqualTo(1));
-            Assert.That(actual[0], Is.EqualTo("import { ViewModels } from './viewModels.d.ts'"));
+            Assert.That(actual[0], Is.EqualTo("import { ViewModels } from './viewModels.d'"));
         }
 
         private List<NamespaceSettings> CreateNamespaceSettings()

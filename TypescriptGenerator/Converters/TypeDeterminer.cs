@@ -62,6 +62,9 @@ namespace TypescriptGenerator.Converters
 
         public TypeDeterminerResult Determine(Type propertyType)
         {
+            var matchingTypeConverter = settings.TypeConverters.FirstOrDefault(x => x.IsMatchingType(propertyType));
+            if (matchingTypeConverter != null)
+                return new TypeDeterminerResult(matchingTypeConverter.Convert(propertyType), new List<Type>());
             if(propertyType.IsGenericParameter)
                 return new TypeDeterminerResult(propertyType.Name, new List<Type>());
             if (IsPrimitiveType(propertyType))
@@ -76,7 +79,7 @@ namespace TypescriptGenerator.Converters
             }
             if (propertyType.IsEnum && enumSettings.EnumsIntoSeparateFile)
             {
-                return new TypeDeterminerResult("Enums." + propertyType.Name, new List<Type>());
+                return new TypeDeterminerResult("Enums." + propertyType.Name, new List<Type> { propertyType });
             }
 
             if (propertyType.IsDictionary(out var keyType, out var valueType))
@@ -96,9 +99,6 @@ namespace TypescriptGenerator.Converters
                     itemTypeResult.Dependencies
                 );
             }
-            var matchingTypeConverter = settings.TypeConverters.FirstOrDefault(x => x.IsMatchingType(propertyType));
-            if (matchingTypeConverter != null)
-                return new TypeDeterminerResult(matchingTypeConverter.Convert(propertyType), new List<Type>());
             var translatedNamespace = NamespaceTranslator.Translate(propertyType.Namespace, namespaceSettings);
             if (propertyType.IsGenericType)
             {

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 using TypescriptGenerator.Converters;
+using TypescriptGenerator.Extensions;
 using TypescriptGenerator.Formatter;
 using TypescriptGenerator.Objects;
 using TypescriptGenerator.Settings;
@@ -20,7 +22,10 @@ namespace TypescriptGenerator
         public List<NamespaceSettings> NamespaceSettings { get; } = new List<NamespaceSettings>();
         public string OutputDirectory { get; set; } = ".";
         public GeneralFormatterSettings FormatterSettings { get; } = new GeneralFormatterSettings();
-        public List<ITypeConverter> CustomTypeConverters { get; } = new List<ITypeConverter>();
+        public List<ITypeConverter> CustomTypeConverters { get; } = new List<ITypeConverter>
+        {
+            new GenericTypeConverter(x => typeof(JToken).IsAssignableFrom(x), x => "any")
+        };
 
         public string DefaultFilename { get; set; } = "models.d.ts";
         public string DefaultEnumFilename { get; set; } = "enums.d.ts";
@@ -66,9 +71,10 @@ namespace TypescriptGenerator
                 lines.AddRange(imports);
                 if(EnumSettings.EnumsIntoSeparateFile && hasEnums)
                 {
-                    lines.Add($"import * as Enums from './{DefaultEnumFilename}'");
-                    lines.Add("");
+                    lines.Add($"import * as Enums from './{DefaultEnumFilename.RemoveSuffix(".ts")}'");
                 }
+                if(lines.Any())
+                    lines.Add("");
                 foreach (var ns in fileNamespaces)
                 {
                     var formattedNamespace = namespaceFormatter.Format(ns);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using TestObjects;
 using TypescriptGenerator.Converters;
@@ -10,7 +11,10 @@ namespace TypescriptGenerator.Test
     [TestFixture]
     public class TypeDeterminerTest
     {
-        private readonly TypescriptPropertyConverterSettings propertySettings = new TypescriptPropertyConverterSettings();
+        private readonly TypescriptPropertyConverterSettings propertySettings = new TypescriptPropertyConverterSettings
+        {
+            TypeConverters = { new GenericTypeConverter(x => typeof(JToken).IsAssignableFrom(x), x => "any")}
+        };
         private readonly TypescriptEnumConverterSettings enumSettings = new TypescriptEnumConverterSettings();
         private readonly List<NamespaceSettings> namespaceSettings = new List<NamespaceSettings>();
 
@@ -41,6 +45,21 @@ namespace TypescriptGenerator.Test
             var actual = sut.Determine(input);
 
             Assert.That(actual.FormattedType, Is.EqualTo("{ [key: number]: string }"));
+            Assert.That(actual.Dependencies, Is.Empty);
+        }
+
+        [Test]
+        [TestCase(typeof(JToken))]
+        [TestCase(typeof(JObject))]
+        [TestCase(typeof(JProperty))]
+        [TestCase(typeof(JValue))]
+        public void JTokensAreConvertedToAny(Type input)
+        {
+            var sut = new TypeDeterminer(propertySettings, enumSettings, namespaceSettings);
+
+            var actual = sut.Determine(input);
+
+            Assert.That(actual.FormattedType, Is.EqualTo("any"));
             Assert.That(actual.Dependencies, Is.Empty);
         }
 

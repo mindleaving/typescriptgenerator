@@ -37,7 +37,7 @@ namespace TypescriptGenerator
             {
                 var dependentOnNamespaces = files[dependentOnFile]
                     .Select(x => x.TranslatedName);
-                yield return $"import {{ {string.Join(", ", dependentOnNamespaces)} }} from './{dependentOnFile}'";
+                yield return $"import {{ {string.Join(", ", dependentOnNamespaces)} }} from './{dependentOnFile.RemoveSuffix(".ts")}'";
             }
         }
     }
