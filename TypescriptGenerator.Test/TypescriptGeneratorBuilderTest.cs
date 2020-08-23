@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 using TestObjects;
+using TestObjects.Food;
+using TestObjects.Food.SeaFood;
 
 namespace TypescriptGenerator.Test
 {
@@ -39,6 +42,16 @@ namespace TypescriptGenerator.Test
         public class LocalType
         {
             public List<Product> Products { get; }
+        }
+
+        [Test]
+        public void AllTypesInNamespaceAreAdded()
+        {
+            var sut = TypescriptGenerator.Builder;
+
+            sut = sut.IncludeAllInNamespace(Assembly.GetAssembly(typeof(Product)), "TestObjects.Food");
+
+            Assert.That(sut.IncludedTypes, Is.EquivalentTo(new[] { typeof(Apple), typeof(Milk), typeof(Fish) }));
         }
     }
 }

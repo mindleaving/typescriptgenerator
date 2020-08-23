@@ -11,7 +11,7 @@ namespace TypescriptGenerator.Test
     [TestFixture]
     public class TypeDeterminerTest
     {
-        private readonly TypescriptPropertyConverterSettings propertySettings = new TypescriptPropertyConverterSettings
+        private TypescriptPropertyConverterSettings CreatePropertySettings() => new TypescriptPropertyConverterSettings
         {
             TypeConverters = { new GenericTypeConverter(x => typeof(JToken).IsAssignableFrom(x), x => "any")}
         };
@@ -28,7 +28,7 @@ namespace TypescriptGenerator.Test
         [TestCase(typeof(object), "any")]
         public void PrimitiveTypesAsExpected(Type input, string expected)
         {
-            var sut = new TypeDeterminer(propertySettings, enumSettings, namespaceSettings);
+            var sut = new TypeDeterminer(CreatePropertySettings(), enumSettings, namespaceSettings);
 
             var actual = sut.Determine(input);
 
@@ -40,11 +40,26 @@ namespace TypescriptGenerator.Test
         public void DictionaryAsExpected()
         {
             var input = typeof(Dictionary<int, string>);
-            var sut = new TypeDeterminer(propertySettings, enumSettings, namespaceSettings);
+            var sut = new TypeDeterminer(CreatePropertySettings(), enumSettings, namespaceSettings);
 
             var actual = sut.Determine(input);
 
             Assert.That(actual.FormattedType, Is.EqualTo("{ [key: number]: string }"));
+            Assert.That(actual.Dependencies, Is.Empty);
+        }
+
+        [Test]
+        public void CollectionAsExpected()
+        {
+            var input = typeof(List<string>);
+            var nullableStringConverter = new GenericTypeConverter(x => x == typeof(string), x => "string | null");
+            var propertySettings = CreatePropertySettings();
+            propertySettings.TypeConverters.Add(nullableStringConverter);
+            var sut = new TypeDeterminer(propertySettings, enumSettings, namespaceSettings);
+
+            var actual = sut.Determine(input);
+
+            Assert.That(actual.FormattedType, Is.EqualTo("(string | null)[]"));
             Assert.That(actual.Dependencies, Is.Empty);
         }
 
@@ -55,7 +70,7 @@ namespace TypescriptGenerator.Test
         [TestCase(typeof(JValue))]
         public void JTokensAreConvertedToAny(Type input)
         {
-            var sut = new TypeDeterminer(propertySettings, enumSettings, namespaceSettings);
+            var sut = new TypeDeterminer(CreatePropertySettings(), enumSettings, namespaceSettings);
 
             var actual = sut.Determine(input);
 
@@ -67,7 +82,7 @@ namespace TypescriptGenerator.Test
         public void GenericTypeIsTranslatedToGeneric()
         {
             var input = typeof(GenericClass<string, Product>);
-            var sut = new TypeDeterminer(propertySettings, enumSettings, namespaceSettings);
+            var sut = new TypeDeterminer(CreatePropertySettings(), enumSettings, namespaceSettings);
 
             var actual = sut.Determine(input);
 

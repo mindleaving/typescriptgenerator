@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using TypescriptGenerator.Converters;
 using TypescriptGenerator.Settings;
@@ -11,6 +12,17 @@ namespace TypescriptGenerator
         {
             var assembly = Assembly.GetAssembly(typeof(T));
             generator.IncludedTypes.AddRange(assembly.GetExportedTypes());
+            return generator;
+        }
+
+        public static TypescriptGenerator IncludeAllInNamespace(
+            this TypescriptGenerator generator,
+            Assembly assembly,
+            string namespaceName)
+        {
+            var matchingTypes = assembly.GetExportedTypes()
+                .Where(x => x.Namespace != null && (x.Namespace == namespaceName || x.Namespace.StartsWith(namespaceName + ".")));
+            generator.IncludedTypes.AddRange(matchingTypes);
             return generator;
         }
         public static TypescriptGenerator Include<T>(this TypescriptGenerator generator)

@@ -94,8 +94,11 @@ namespace TypescriptGenerator.Converters
             if (propertyType.IsCollection(out var itemType))
             {
                 var itemTypeResult = Determine(itemType);
+                var formattedCollectionType = itemTypeResult.FormattedType.Contains('|')
+                    ? $"({itemTypeResult.FormattedType})[]"
+                    : $"{itemTypeResult.FormattedType}[]";
                 return new TypeDeterminerResult(
-                    $"{itemTypeResult.FormattedType}[]",
+                    formattedCollectionType,
                     itemTypeResult.Dependencies
                 );
             }
