@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using TypescriptGenerator.Attributes;
 using TypescriptGenerator.Extensions;
 using TypescriptGenerator.Settings;
 
@@ -62,13 +64,12 @@ namespace TypescriptGenerator.Converters
 
         public TypeDeterminerResult Determine(Type propertyType)
         {
+            var typeAttribute = propertyType.GetCustomAttribute<TypescriptTypeAttribute>();
+            if (typeAttribute != null)
+                return new TypeDeterminerResult(typeAttribute.TypeString, typeAttribute.Dependencies);
             var matchingTypeConverter = settings.TypeConverters.FirstOrDefault(x => x.IsMatchingType(propertyType));
             if (matchingTypeConverter != null)
                 return new TypeDeterminerResult(matchingTypeConverter.Convert(propertyType), new List<Type>());
-            if(propertyType.IsGenericParameter)
-                return new TypeDeterminerResult(propertyType.Name, new List<Type>());
-            if (IsPrimitiveType(propertyType))
-                return new TypeDeterminerResult(PrimitiveTypes[propertyType], new List<Type>());
             if (propertyType.IsNullable())
             {
                 var underlyingType = Nullable.GetUnderlyingType(propertyType);
@@ -77,6 +78,10 @@ namespace TypescriptGenerator.Converters
                     $"{underlyingTypeResult.FormattedType} | null",
                     underlyingTypeResult.Dependencies);
             }
+            if(propertyType.IsGenericParameter)
+                return new TypeDeterminerResult(propertyType.Name, new List<Type>());
+            if (IsPrimitiveType(propertyType))
+                return new TypeDeterminerResult(PrimitiveTypes[propertyType], new List<Type>());
             if (propertyType.IsEnum && enumSettings.EnumsIntoSeparateFile)
             {
                 return new TypeDeterminerResult("Enums." + propertyType.Name, new List<Type> { propertyType });

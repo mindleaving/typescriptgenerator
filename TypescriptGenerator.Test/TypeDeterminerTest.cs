@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using TestObjects;
+using TypescriptGenerator.Attributes;
 using TypescriptGenerator.Converters;
 using TypescriptGenerator.Settings;
 
@@ -95,5 +96,6 @@ namespace TypescriptGenerator.Test
             public T1 Item1 { get; }
             public T2 Item2 { get; }
         }
+
     }
 }

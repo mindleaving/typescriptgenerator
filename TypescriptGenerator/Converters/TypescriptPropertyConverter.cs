@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
+using TypescriptGenerator.Attributes;
 using TypescriptGenerator.Extensions;
 using TypescriptGenerator.Objects;
 using TypescriptGenerator.Settings;
@@ -27,12 +28,27 @@ namespace TypescriptGenerator.Converters
         {
             var propertyName = property.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName
                                ?? ApplyCasing(property.Name, settings.Casing);
-            var typeDeterminerResult = typeDeterminer.Determine(property.PropertyType);
+            var typeAttribute = property.GetCustomAttribute<TypescriptTypeAttribute>();
+            string formattedType;
+            List<Type> dependencies;
+            if (typeAttribute != null)
+            {
+                formattedType = typeAttribute.TypeString;
+                dependencies = typeAttribute.Dependencies;
+            }
+            else
+            {
+                var typeDeterminerResult = typeDeterminer.Determine(property.PropertyType);
+                formattedType = typeDeterminerResult.FormattedType;
+                dependencies = typeDeterminerResult.Dependencies;
+            }
+            var isOptionalAttribute = property.GetCustomAttribute<TypescriptIsOptionalAttribute>();
+            var isOptional = isOptionalAttribute != null || property.PropertyType.IsNullable();
             return new TypescriptProperty(
                 propertyName,
-                typeDeterminerResult.FormattedType,
-                property.PropertyType.IsNullable(),
-                typeDeterminerResult.Dependencies);
+                formattedType,
+                isOptional,
+                dependencies);
         }
 
         private string ApplyCasing(
