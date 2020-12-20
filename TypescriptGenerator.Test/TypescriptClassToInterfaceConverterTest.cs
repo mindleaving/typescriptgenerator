@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using Commons.Mathematics;
 using Commons.Physics;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -53,6 +55,27 @@ namespace TypescriptGenerator.Test
             Assert.That(actual.Properties.Exists(x => x.Name == "title"));
             Assert.That(!actual.Properties.Exists(x => x.Name == "number"));
             Assert.That(actual.Properties.Exists(x => x.Name == "customName"));
+        }
+        
+        [Test]
+        public void GenericTypeIsConvertedToGenericInterface()
+        {
+            var settings = new TypescriptClassToInterfaceConverterSettings
+            {
+                PropertySettings =
+                {
+                    Casing = CasingType.CamelCase
+                }
+            };
+            var sut = new TypescriptClassToInterfaceConverter(settings, enumSettings, namespaceSettings);
+
+            var actual = sut.Convert(typeof(Range<>));
+
+            Assert.That(actual.Properties.Count, Is.EqualTo(2));
+            Assert.That(actual.Name, Is.EqualTo("Range<T>"));
+            Assert.That(actual.Properties.Exists(x => x.Name == "from"));
+            Assert.That(actual.Properties.Exists(x => x.Name == "to"));
+            Assert.That(actual.Properties.All(x => x.FormattedType == "T"));
         }
 
         [Test]

@@ -46,13 +46,21 @@ namespace TypescriptGenerator.Converters
                 .SelectMany(x => x.Dependencies)
                 .ToList();
             var translatedNamespace = NamespaceTranslator.Translate(effectiveType.Namespace, namespaceSettings);
+            var typeName = type.IsGenericType ? GetGenericTypeName(type) : type.Name;
             return new TypescriptInterface(
                 effectiveType.Namespace,
                 translatedNamespace,
-                type.Name, // TODO: Apply transforms
+                typeName, // TODO: Apply transforms
                 typescriptProperties,
                 dependencies,
                 settings.Modifiers);
+        }
+
+        private string GetGenericTypeName(Type type)
+        {
+            var genericName = type.Name.Substring(0, type.Name.IndexOf('`'));
+            var genericTypeNames = type.GetGenericArguments().Select(x => x.Name);
+            return $"{genericName}<{string.Join(",", genericTypeNames)}>";
         }
 
         private bool ShouldIncludeProperty(PropertyInfo property)
