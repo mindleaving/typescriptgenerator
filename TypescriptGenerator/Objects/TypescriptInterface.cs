@@ -11,6 +11,7 @@ namespace TypescriptGenerator.Objects
             string name,
             List<TypescriptProperty> properties,
             List<Type> directDependencies,
+            List<Type> baseClassAndInterfaces, 
             List<string> modifiers)
         {
             OriginalNamespace = originalNamespace;
@@ -19,6 +20,7 @@ namespace TypescriptGenerator.Objects
             Properties = properties;
             DirectDependencies = directDependencies;
             Modifiers = modifiers;
+            BaseClassAndInterfaces = baseClassAndInterfaces;
         }
 
         public string OriginalNamespace { get; }
@@ -27,5 +29,6 @@ namespace TypescriptGenerator.Objects
         public List<string> Modifiers { get; }
         public List<TypescriptProperty> Properties { get; }
         public List<Type> DirectDependencies { get; }
+        public List<Type> BaseClassAndInterfaces { get; }
     }
 }

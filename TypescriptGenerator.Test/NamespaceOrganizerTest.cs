@@ -44,6 +44,7 @@ namespace TypescriptGenerator.Test
                 name,
                 new List<TypescriptProperty>(),
                 new List<Type>(),
+                new List<Type>(),
                 new List<string>());
         }
     }

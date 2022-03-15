@@ -27,7 +27,7 @@ namespace TypescriptGenerator
             var dependencyTypes = fileNamespaces.RecursiveSelectMany(
                     x => x.SubNamespaces,
                     x => x.Types.OfType<TypescriptInterface>()
-                        .SelectMany(type => type.DirectDependencies))
+                        .SelectMany(type => type.DirectDependencies.Concat(type.BaseClassAndInterfaces)))
                 .Distinct();
             var dependentOnFiles = dependencyTypes
                 .Select(type => NamespaceFileFinder.GetFileContainingType(type, namespaceSettings, defaultFilename))

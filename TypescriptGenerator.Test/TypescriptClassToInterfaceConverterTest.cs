@@ -79,27 +79,6 @@ namespace TypescriptGenerator.Test
         }
 
         [Test]
-        public void AllPublicPropertiesAreTransferredForDerivedClass()
-        {
-            var settings = new TypescriptClassToInterfaceConverterSettings
-            {
-                PropertySettings =
-                {
-                    Casing = CasingType.CamelCase
-                }
-            };
-            var sut = new TypescriptClassToInterfaceConverter(settings, enumSettings, namespaceSettings);
-
-            var actual = sut.Convert(typeof(DerivedClass));
-
-            Assert.That(actual.Properties.Count, Is.EqualTo(4));
-            Assert.That(actual.Properties.Exists(x => x.Name == "title"));
-            Assert.That(actual.Properties.Exists(x => x.Name == "number"));
-            Assert.That(actual.Properties.Exists(x => x.Name == "longName"));
-            Assert.That(actual.Properties.Exists(x => x.Name == "version"));
-        }
-
-        [Test]
         public void CustomTypeConverterIsApplied()
         {
             var settings = new TypescriptClassToInterfaceConverterSettings

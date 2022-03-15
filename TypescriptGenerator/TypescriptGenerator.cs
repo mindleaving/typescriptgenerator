@@ -22,10 +22,17 @@ namespace TypescriptGenerator
         public List<NamespaceSettings> NamespaceSettings { get; } = new List<NamespaceSettings>();
         public string OutputDirectory { get; set; } = ".";
         public GeneralFormatterSettings FormatterSettings { get; } = new GeneralFormatterSettings();
-        public List<ITypeConverter> CustomTypeConverters { get; } = new List<ITypeConverter>
+        public TypescriptClassToInterfaceConverterSettings InterfaceSettings { get; } = new TypescriptClassToInterfaceConverterSettings
         {
-            new GenericTypeConverter(x => typeof(JToken).IsAssignableFrom(x), x => "any")
+            PropertySettings =
+            {
+                TypeConverters =
+                {
+                    new GenericTypeConverter(x => typeof(JToken).IsAssignableFrom(x), x => "any")
+                }
+            }
         };
+        public List<ITypeConverter> CustomTypeConverters => InterfaceSettings.PropertySettings.TypeConverters;
 
         public string DefaultFilename { get; set; } = "models.d.ts";
         public string DefaultEnumFilename { get; set; } = "enums.d.ts";
@@ -60,7 +67,9 @@ namespace TypescriptGenerator
             var files = namespaces
                 .GroupBy(x => x.OutputFilename ?? DefaultFilename)
                 .ToDictionary(g => g.Key, g => g.ToList());
-            var namespaceFormatter = new TypescriptNamespaceFormatter(FormatterSettings);
+            var namespaceFormatter = new TypescriptNamespaceFormatter(
+                FormatterSettings, 
+                new TypeDeterminer(InterfaceSettings.PropertySettings, EnumSettings, NamespaceSettings));
             var importResolver = new ImportResolver(files, NamespaceSettings, DefaultFilename);
             foreach (var kvp in files)
             {
@@ -89,7 +98,7 @@ namespace TypescriptGenerator
         {
             var types = new Dictionary<Type, ITypescriptObject>();
             var typeQueue = new Queue<Type>(IncludedTypes.Distinct().Except(ExcludedTypes));
-            var classConverter = CreateTypescriptClassToInterfaceConverter();
+            var classConverter = new TypescriptClassToInterfaceConverter(InterfaceSettings, EnumSettings, NamespaceSettings);
             var enumConverter = new TypescriptEnumConverter(EnumSettings, NamespaceSettings);
             while (typeQueue.Count > 0)
             {
@@ -103,7 +112,7 @@ namespace TypescriptGenerator
                 {
                     var typescriptInterface = classConverter.Convert(type);
                     types.Add(type, typescriptInterface);
-                    foreach (var dependency in typescriptInterface.DirectDependencies)
+                    foreach (var dependency in typescriptInterface.DirectDependencies.Concat(typescriptInterface.BaseClassAndInterfaces))
                     {
                         if (types.ContainsKey(dependency))
                             continue;
@@ -117,14 +126,6 @@ namespace TypescriptGenerator
             }
 
             return types.Values.ToList();
-        }
-
-        private TypescriptClassToInterfaceConverter CreateTypescriptClassToInterfaceConverter()
-        {
-            var classToInterfaceConverterSettings = new TypescriptClassToInterfaceConverterSettings();
-            classToInterfaceConverterSettings.PropertySettings.TypeConverters.AddRange(CustomTypeConverters);
-            var classConverter = new TypescriptClassToInterfaceConverter(classToInterfaceConverterSettings, EnumSettings, NamespaceSettings);
-            return classConverter;
         }
     }
 }

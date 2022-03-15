@@ -81,6 +81,7 @@ namespace TypescriptGenerator.Test
                             {
                                 typeof(Product)
                             },
+                            new List<Type>(),
                             new List<string>())
                     },
                     new List<TypescriptNamespace>(),
@@ -96,6 +97,7 @@ namespace TypescriptGenerator.Test
                             "ViewModels",
                             "Product",
                             new List<TypescriptProperty>(),
+                            new List<Type>(),
                             new List<Type>(),
                             new List<string>())
                     },

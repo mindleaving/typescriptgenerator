@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using TypescriptGenerator.Converters;
 using TypescriptGenerator.Objects;
 using TypescriptGenerator.Settings;
 
@@ -11,11 +12,11 @@ namespace TypescriptGenerator.Formatter
         private readonly TypescriptEnumFormatter enumFormatter;
         private readonly TypescriptInterfaceFormatter interfaceFormatter;
 
-        public TypescriptNamespaceFormatter(GeneralFormatterSettings settings)
+        public TypescriptNamespaceFormatter(GeneralFormatterSettings settings, TypeDeterminer typeDeterminer)
         {
             this.settings = settings;
             enumFormatter = new TypescriptEnumFormatter(settings);
-            interfaceFormatter = new TypescriptInterfaceFormatter(settings);
+            interfaceFormatter = new TypescriptInterfaceFormatter(settings, typeDeterminer);
         }
 
         public string Format(TypescriptNamespace typescriptNamespace)

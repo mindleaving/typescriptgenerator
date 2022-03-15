@@ -37,8 +37,12 @@ namespace TypescriptGenerator.Converters
             var effectiveType = type;
             if (type.IsGenericType)
                 effectiveType = type.GetGenericTypeDefinition();
+            var baseClassAndInterfaces = GetDirectBaseClassesAndInterfaces(effectiveType);
+            var baseClassAndInterfaceProperties = GetBaseClassesAndInterfaces(effectiveType)
+                .SelectMany(baseClassOrInterface => baseClassOrInterface.GetProperties())
+                .ToList();
             var typescriptProperties = effectiveType.GetProperties()
-                .Where(ShouldIncludeProperty)
+                .Where(property => ShouldIncludeProperty(property, baseClassAndInterfaceProperties))
                 .Select(propertyConverter.Convert)
                 .ToList();
 
@@ -53,7 +57,32 @@ namespace TypescriptGenerator.Converters
                 typeName, // TODO: Apply transforms
                 typescriptProperties,
                 dependencies,
+                baseClassAndInterfaces,
                 settings.Modifiers);
+        }
+
+        private List<Type> GetBaseClassesAndInterfaces(Type type)
+        {
+            var baseClassesAndInterfaces = type.GetInterfaces().ToList();
+            if (type.BaseType != null && type.BaseType != typeof(object))
+            {
+                baseClassesAndInterfaces.Add(type.BaseType);
+            }
+            return baseClassesAndInterfaces;
+        }
+
+        private List<Type> GetDirectBaseClassesAndInterfaces(Type type)
+        {
+            var baseClassesAndInterfaces = new List<Type>();
+            if (type.BaseType != null && type.BaseType != typeof(object))
+            {
+                baseClassesAndInterfaces.Add(type.BaseType);
+            }
+
+            var interfaces = type.GetInterfaces().Except(type.BaseType?.GetInterfaces() ?? Array.Empty<Type>());
+            var directInterfaces = interfaces.Except(interfaces.SelectMany(i => i.GetInterfaces()));
+            baseClassesAndInterfaces.AddRange(directInterfaces);
+            return baseClassesAndInterfaces;
         }
 
         private string GetGenericTypeName(Type type)
@@ -63,11 +92,13 @@ namespace TypescriptGenerator.Converters
             return $"{genericName}<{string.Join(",", genericTypeNames)}>";
         }
 
-        private bool ShouldIncludeProperty(PropertyInfo property)
+        private bool ShouldIncludeProperty(PropertyInfo property, List<PropertyInfo> baseClassAndInterfaceProperties)
         {
             if (!property.GetMethod.IsPublic)
                 return false;
             if(property.GetCustomAttributes<JsonIgnoreAttribute>().Any())
+                return false;
+            if (baseClassAndInterfaceProperties.Any(baseProperty => baseProperty.Name == property.Name))
                 return false;
             return true;
         }
