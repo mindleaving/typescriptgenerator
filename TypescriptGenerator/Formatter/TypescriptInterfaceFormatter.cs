@@ -24,7 +24,7 @@ namespace TypescriptGenerator.Formatter
                 ? string.Join(" ", tsInterface.Modifiers) + " "
                 : "";
             var extensions = tsInterface.BaseClassAndInterfaces.Any()
-                ? " extends " + string.Join(" & ", tsInterface.BaseClassAndInterfaces.Select(typeDeterminer.Determine).Select(x => x.FormattedType))
+                ? " extends " + string.Join(", ", tsInterface.BaseClassAndInterfaces.Select(typeDeterminer.Determine).Select(x => x.FormattedType))
                 : "";
             return 
 $@"{modifiers}interface {tsInterface.Name}{extensions} {{
