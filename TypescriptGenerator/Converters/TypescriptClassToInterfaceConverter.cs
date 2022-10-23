@@ -79,8 +79,8 @@ namespace TypescriptGenerator.Converters
                 baseClassesAndInterfaces.Add(type.BaseType);
             }
 
-            var interfaces = type.GetInterfaces().Except(type.BaseType?.GetInterfaces() ?? Array.Empty<Type>());
-            var directInterfaces = interfaces.Except(interfaces.SelectMany(i => i.GetInterfaces()));
+            var interfaces = type.GetInterfaces().Except(type.BaseType?.GetInterfaces() ?? Array.Empty<Type>()).ToList();
+            var directInterfaces = interfaces.Except(interfaces.SelectMany(i => i.GetInterfaces())).ToList();
             baseClassesAndInterfaces.AddRange(directInterfaces);
             return baseClassesAndInterfaces;
         }

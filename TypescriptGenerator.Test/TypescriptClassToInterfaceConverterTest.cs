@@ -112,35 +112,35 @@ namespace TypescriptGenerator.Test
 
         private class TestClass1
         {
-            public string Title { get; }
-            public int Number { get; }
-            public int LongName { get; }
+            public string Title { get; set; }
+            public int Number { get; set; }
+            public int LongName { get; set; }
         }
 
         private class TestClass2
         {
-            public string Title { get; }
+            public string Title { get; set; }
             [JsonIgnore]
-            public int Number { get; }
+            public int Number { get; set; }
             [JsonProperty("customName")]
-            public int LongName { get; }
+            public int LongName { get; set; }
         }
 
         private class DerivedClass : TestClass1
         {
-            public string Version { get; }
+            public string Version { get; set; }
         }
 
         private class Bag
         {
-            public string Id { get; }
-            public UnitValue Volume { get; }
+            public string Id { get; set; }
+            public UnitValue Volume { get; set; }
         }
 
         private class GenericClass<T1,T2>
         {
-            public T1 Item1 { get; }
-            public T2 Item2 { get; }
+            public T1 Item1 { get; set; }
+            public T2 Item2 { get; set; }
         }
     }
 }

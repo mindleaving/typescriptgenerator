@@ -4,8 +4,8 @@ namespace TestObjects
 {
     public class ProductCategory
     {
-        public int Id { get; }
-        public string Title { get; }
-        public DateTime CreatedTimestamp { get; }
+        public int Id { get; set; }
+        public string Title { get; set;  }
+        public DateTime CreatedTimestamp { get; set;  }
     }
 }

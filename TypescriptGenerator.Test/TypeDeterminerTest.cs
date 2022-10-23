@@ -93,8 +93,8 @@ namespace TypescriptGenerator.Test
 
         private class GenericClass<T1,T2>
         {
-            public T1 Item1 { get; }
-            public T2 Item2 { get; }
+            public T1 Item1 { get; set;  }
+            public T2 Item2 { get; set; }
         }
 
     }

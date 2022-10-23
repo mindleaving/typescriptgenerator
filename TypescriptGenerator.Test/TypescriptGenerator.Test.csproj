@@ -8,14 +8,18 @@
 
   <ItemGroup>
     <PackageReference Include="mindleaving.Commons" Version="2.1.8" />
-    <PackageReference Include="nunit" Version="3.13.2" />
+    <PackageReference Include="nunit" Version="3.13.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TestObjects\TestObjects.csproj" />
     <ProjectReference Include="..\TypescriptGenerator\TypescriptGenerator.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="GenericInterfaceTestTypes\" />
   </ItemGroup>
 
 </Project>

@@ -94,7 +94,7 @@ namespace TypescriptGenerator
             }
         }
 
-        private List<ITypescriptObject> CollectTypes()
+        public List<ITypescriptObject> CollectTypes()
         {
             var types = new Dictionary<Type, ITypescriptObject>();
             var typeQueue = new Queue<Type>(IncludedTypes.Distinct().Except(ExcludedTypes));
@@ -114,13 +114,14 @@ namespace TypescriptGenerator
                     types.Add(type, typescriptInterface);
                     foreach (var dependency in typescriptInterface.DirectDependencies.Concat(typescriptInterface.BaseClassAndInterfaces))
                     {
-                        if (types.ContainsKey(dependency))
+                        var nonGenericOrPureGenericDependency = dependency.IsGenericType ? dependency.GetGenericTypeDefinition() : dependency;
+                        if (types.ContainsKey(nonGenericOrPureGenericDependency))
                             continue;
-                        if (typeQueue.Contains(dependency))
+                        if (typeQueue.Contains(nonGenericOrPureGenericDependency))
                             continue;
-                        if (ExcludedTypes.Contains(dependency))
+                        if (ExcludedTypes.Contains(nonGenericOrPureGenericDependency))
                             continue;
-                        typeQueue.Enqueue(dependency);
+                        typeQueue.Enqueue(nonGenericOrPureGenericDependency);
                     }
                 }
             }

@@ -41,7 +41,7 @@ namespace TypescriptGenerator.Test
 
         public class LocalType
         {
-            public List<Product> Products { get; }
+            public List<Product> Products { get; set; }
         }
 
         [Test]

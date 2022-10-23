@@ -39,10 +39,10 @@ namespace TypescriptGenerator.Test
         private class AttributeAnnotatedClass
         {
             [TypescriptType("string | null")]
-            public string NullableString { get; }
+            public string NullableString { get; set; }
 
             [TypescriptIsOptional]
-            public string OptionalString { get; }
+            public string OptionalString { get; set; }
         }
     }
 }
