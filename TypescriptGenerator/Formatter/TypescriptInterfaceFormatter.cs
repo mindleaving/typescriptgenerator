@@ -28,7 +28,7 @@ namespace TypescriptGenerator.Formatter
                 : "";
             return 
 $@"{modifiers}interface {tsInterface.Name}{extensions} {{
-{settings.IndentString}{string.Join(Environment.NewLine + settings.IndentString, properties)}
+{settings.IndentString}{string.Join(settings.NewLine + settings.IndentString, properties)}
 }}";
         }
 

@@ -12,7 +12,7 @@ namespace TypescriptGenerator.Test
         {
             var input = new List<RecursiveClass>();
             var actual = input.RecursiveSelect(x => x.Items, x => x.Name);
-            CollectionAssert.IsEmpty(actual);
+            Assert.That(actual, Is.Empty);
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace TypescriptGenerator.Test
                 }
             };
             var actual = input.RecursiveSelect(x => x.Items, x => x.Name);
-            CollectionAssert.AreEquivalent(actual, new[] { "A", "AA", "AB", "AC", "ACA", "B", "BA" });
+            Assert.That(actual, Is.EquivalentTo(new[] { "A", "AA", "AB", "AC", "ACA", "B", "BA" }));
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace TypescriptGenerator.Test
         {
             var input = new List<RecursiveClass>();
             var actual = input.RecursiveSelectMany(x => x.Items, x => x.Categories);
-            CollectionAssert.IsEmpty(actual);
+            Assert.That(actual, Is.Empty);
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace TypescriptGenerator.Test
                 }
             };
             var actual = input.RecursiveSelectMany(x => x.Items, x => x.Categories);
-            CollectionAssert.AreEquivalent(actual, new[] { "Cat1", "Cat2", "Cat3", "Cat4", "Cat5", "Cat6" });
+            Assert.That(actual, Is.EquivalentTo(new[] { "Cat1", "Cat2", "Cat3", "Cat4", "Cat5", "Cat6" }));
         }
 
         private class RecursiveClass

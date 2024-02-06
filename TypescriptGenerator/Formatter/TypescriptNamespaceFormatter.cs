@@ -31,7 +31,7 @@ namespace TypescriptGenerator.Formatter
                 .Select(Format)
                 .Select(Indent);
             return $@"{modifiers}namespace {typescriptNamespace.TranslatedName} {{
-{string.Join(Environment.NewLine + Environment.NewLine, formattedTypes.Concat(subNamespaces))}
+{string.Join(settings.NewLine, formattedTypes.Concat(subNamespaces))}
 }}";
         }
 
@@ -50,7 +50,7 @@ namespace TypescriptGenerator.Formatter
 
         private string Indent(string typeString)
         {
-            return settings.IndentString + typeString.Replace(Environment.NewLine, Environment.NewLine + settings.IndentString);
+            return settings.IndentString + typeString.Replace(settings.NewLine, settings.NewLine + settings.IndentString);
         }
     }
 }

@@ -8,7 +8,8 @@ namespace TypescriptGenerator
 {
     public static class TypescriptGeneratorBuilder
     {
-        public static TypescriptGenerator IncludeAllInAssemblyContainingType<T>(this TypescriptGenerator generator)
+        public static TypescriptGenerator IncludeAllInAssemblyContainingType<T>(
+            this TypescriptGenerator generator)
         {
             var assembly = Assembly.GetAssembly(typeof(T));
             generator.IncludedTypes.AddRange(assembly.GetExportedTypes());
@@ -28,6 +29,23 @@ namespace TypescriptGenerator
         public static TypescriptGenerator Include<T>(this TypescriptGenerator generator)
         {
             generator.IncludedTypes.Add(typeof(T));
+            return generator;
+        }
+        public static TypescriptGenerator ExcludeAllInAssemblyContainingType<T>(
+            this TypescriptGenerator generator)
+        {
+            var assembly = Assembly.GetAssembly(typeof(T));
+            generator.ExcludedTypes.AddRange(assembly.GetExportedTypes());
+            return generator;
+        }
+        public static TypescriptGenerator ExcludeAllInNamespace(
+            this TypescriptGenerator generator,
+            Assembly assembly,
+            string namespaceName)
+        {
+            var matchingTypes = assembly.GetExportedTypes()
+                .Where(x => x.Namespace != null && (x.Namespace == namespaceName || x.Namespace.StartsWith(namespaceName + ".")));
+            generator.ExcludedTypes.AddRange(matchingTypes);
             return generator;
         }
         public static TypescriptGenerator Exclude<T>(this TypescriptGenerator generator)

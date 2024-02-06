@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -28,7 +27,7 @@ namespace TypescriptGenerator.Test
                 .SetOutputDirectory(outputDirectory)
                 .Generate();
 
-            var fileContents = string.Join(Environment.NewLine, Directory.EnumerateFiles(outputDirectory).Select(File.ReadAllText));
+            var fileContents = string.Join("\n", Directory.EnumerateFiles(outputDirectory).Select(File.ReadAllText));
             Assert.That(fileContents, Does.Not.Contain(nameof(InternalPerson)));
             Assert.That(fileContents, Contains.Substring("interface Person extends Models.IId"));
         }
