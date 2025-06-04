@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using TypescriptGenerator.Attributes;
 
 namespace TypescriptGenerator.Extensions
 {
@@ -14,9 +12,20 @@ namespace TypescriptGenerator.Extensions
             return type.IsValueType && !type.IsEnum;
         }
 
-        public static bool IsNullable(this Type type)
+        public static bool IsNullable(
+            this Type type, 
+            out Type? underlyingType)
         {
-            return Nullable.GetUnderlyingType(type) != null;
+            underlyingType = Nullable.GetUnderlyingType(type);
+            if (underlyingType != null)
+                return true;
+            var nullableAttribute = type.CustomAttributes.FirstOrDefault(x => x.AttributeType.FullName == "System.Runtime.CompilerServices.NullableAttribute");
+            if (nullableAttribute != null && nullableAttribute.ConstructorArguments.Count > 0 && nullableAttribute.ConstructorArguments[0].Value.Equals(0x2))
+            {
+                underlyingType = null;
+                return true;
+            }
+            return false;
         }
 
         public static bool IsCollection(this Type propertyType, out Type itemType)
@@ -27,7 +36,7 @@ namespace TypescriptGenerator.Extensions
                 return true;
             }
 
-            var ienumerableInterface = propertyType.GetInterfaces().Concat(new [] {propertyType})
+            var ienumerableInterface = propertyType.GetInterfaces().Concat([propertyType])
                 .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>));
             if (ienumerableInterface != null)
             {

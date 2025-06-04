@@ -8,6 +8,6 @@ namespace TypescriptGenerator.Settings
     {
         public CasingType Casing { get; set; } = CasingType.CamelCase;
         public Func<string, string> CustomPropertyNamingFunc { get; set; }
-        public List<ITypeConverter> TypeConverters { get; } = new List<ITypeConverter>();
+        public List<ITypeConverter> TypeConverters { get; } = [];
     }
 }

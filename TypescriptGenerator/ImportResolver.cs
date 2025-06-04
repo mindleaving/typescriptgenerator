@@ -32,7 +32,7 @@ namespace TypescriptGenerator
             var dependentOnFiles = dependencyTypes
                 .Select(type => NamespaceFileFinder.GetFileContainingType(type, namespaceSettings, defaultFilename))
                 .Distinct()
-                .Except(new[] {filename});
+                .Except([filename]);
             foreach (var dependentOnFile in dependentOnFiles)
             {
                 if(!files.ContainsKey(dependentOnFile))

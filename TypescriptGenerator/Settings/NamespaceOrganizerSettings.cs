@@ -8,8 +8,8 @@ namespace TypescriptGenerator.Settings
             List<string> modifiers = null, 
             List<NamespaceSettings> namespaceSettings = null)
         {
-            Modifiers = modifiers ?? new List<string>();
-            NamespaceSettings = namespaceSettings ?? new List<NamespaceSettings>();
+            Modifiers = modifiers ?? [];
+            NamespaceSettings = namespaceSettings ?? [];
         }
 
         public List<string> Modifiers { get; }

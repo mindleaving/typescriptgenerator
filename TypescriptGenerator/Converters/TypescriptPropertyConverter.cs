@@ -42,13 +42,26 @@ namespace TypescriptGenerator.Converters
                 formattedType = typeDeterminerResult.FormattedType;
                 dependencies = typeDeterminerResult.Dependencies;
             }
-            var isOptionalAttribute = property.GetCustomAttribute<TypescriptIsOptionalAttribute>();
-            var isOptional = isOptionalAttribute != null || property.PropertyType.IsNullable();
+            var isOptional = IsOptional(property);
             return new TypescriptProperty(
                 propertyName,
                 formattedType,
                 isOptional,
                 dependencies);
+        }
+
+        private static bool IsOptional(
+            PropertyInfo property)
+        {
+            var isOptionalAttribute = property.GetCustomAttribute<TypescriptIsOptionalAttribute>();
+            if (isOptionalAttribute != null)
+                return true;
+            if (property.PropertyType.IsNullable(out _))
+                return true;
+            var nullableAttribute = property.CustomAttributes.FirstOrDefault(x => x.AttributeType.FullName == "System.Runtime.CompilerServices.NullableAttribute");
+            if (nullableAttribute != null && nullableAttribute.ConstructorArguments.Count > 0 && nullableAttribute.ConstructorArguments[0].Value.Equals((byte)0x2))
+                return true;
+            return false;
         }
 
         private string ApplyCasing(

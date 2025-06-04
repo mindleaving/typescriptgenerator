@@ -4,7 +4,7 @@ namespace TypescriptGenerator.Settings
 {
     public class TypescriptClassToInterfaceConverterSettings
     {
-        public List<string> Modifiers { get; } = new List<string>();
+        public List<string> Modifiers { get; } = [];
         public TypescriptPropertyConverterSettings PropertySettings { get; } = new TypescriptPropertyConverterSettings();
     }
 }

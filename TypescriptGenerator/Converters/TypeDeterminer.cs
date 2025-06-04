@@ -69,22 +69,27 @@ namespace TypescriptGenerator.Converters
                 return new TypeDeterminerResult(typeAttribute.TypeString, typeAttribute.Dependencies);
             var matchingTypeConverter = settings.TypeConverters.FirstOrDefault(x => x.IsMatchingType(propertyType));
             if (matchingTypeConverter != null)
-                return new TypeDeterminerResult(matchingTypeConverter.Convert(propertyType), new List<Type>());
-            if (propertyType.IsNullable())
+                return new TypeDeterminerResult(matchingTypeConverter.Convert(propertyType), []);
+            if (propertyType == typeof(string))
             {
-                var underlyingType = Nullable.GetUnderlyingType(propertyType);
+                if (propertyType.IsNullable(out _))
+                    return new TypeDeterminerResult("string | null", []);
+                return new TypeDeterminerResult("string", []);
+            }
+            if (propertyType.IsNullable(out var underlyingType) && underlyingType != null)
+            {
                 var underlyingTypeResult = Determine(underlyingType);
                 return new TypeDeterminerResult(
                     $"{underlyingTypeResult.FormattedType} | null",
                     underlyingTypeResult.Dependencies);
             }
             if(propertyType.IsGenericParameter)
-                return new TypeDeterminerResult(propertyType.Name, new List<Type>());
+                return new TypeDeterminerResult(propertyType.Name, []);
             if (IsPrimitiveType(propertyType))
-                return new TypeDeterminerResult(PrimitiveTypes[propertyType], new List<Type>());
+                return new TypeDeterminerResult(PrimitiveTypes[propertyType], []);
             if (propertyType.IsEnum && enumSettings.EnumsIntoSeparateFile)
             {
-                return new TypeDeterminerResult("Enums." + propertyType.Name, new List<Type> { propertyType });
+                return new TypeDeterminerResult("Enums." + propertyType.Name, [propertyType]);
             }
 
             if (propertyType.IsDictionary(out var keyType, out var valueType))
@@ -116,13 +121,12 @@ namespace TypescriptGenerator.Converters
                 var generics = $"<{string.Join(",", genericResults.Select(x => x.FormattedType))}>";
                 return new TypeDeterminerResult(
                     $"{translatedNamespace}.{propertyType.Name.StripGenericTypeSuffix()}{generics}",
-                    genericResults.SelectMany(x => x.Dependencies).Concat(new []{ propertyType.GetGenericTypeDefinition() }).ToList()
+                    genericResults.SelectMany(x => x.Dependencies).Concat([propertyType.GetGenericTypeDefinition()]).ToList()
                 );
             }
             return new TypeDeterminerResult(
                 $"{translatedNamespace}.{propertyType.Name}",
-                new List<Type> { propertyType}
-            );
+                [propertyType]);
         }
     }
 }

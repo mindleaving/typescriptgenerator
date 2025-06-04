@@ -9,10 +9,12 @@
     <RepositoryUrl>https://github.com/mindleaving/typescriptgenerator</RepositoryUrl>
     <PackageTags>typescript generator</PackageTags>
     <Description>Generates Typescript interfaces and enums from .NET assemblies and types. Supports configuration for use with Typescript React projects (e.g. enums to separate file outside namepaces).</Description>
-    <Version>0.9.5</Version>
+    <Version>0.10.1</Version>
     <Authors>Jan Scholtyssek</Authors>
     <Company />
     <Product>mindleaving.TypescriptGenerator</Product>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

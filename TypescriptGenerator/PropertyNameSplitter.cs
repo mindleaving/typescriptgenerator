@@ -16,13 +16,13 @@ namespace TypescriptGenerator
             var normalizedName = TrimSymbols(propertyName);
             if (normalizedName.Contains("_"))
             {
-                return propertyName.Split(new []{ '_' }, StringSplitOptions.RemoveEmptyEntries)
+                return propertyName.Split(['_'], StringSplitOptions.RemoveEmptyEntries)
                     .SelectMany(Split)
                     .ToList();
             }
 
             if (propertyName == propertyName.ToUpperInvariant())
-                return new[] { propertyName.ToLowerInvariant() };
+                return [propertyName.ToLowerInvariant()];
             var parts = new List<string>();
             var currentPart = char.ToLowerInvariant(propertyName.First()) + "";
             for (int i = 1; i < propertyName.Length; i++)
