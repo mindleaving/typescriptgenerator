@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
 using TypescriptGenerator.Objects;
 using TypescriptGenerator.Settings;
 
@@ -32,7 +34,10 @@ namespace TypescriptGenerator.Converters
                 translatedNamespace,
                 type.Name, // TODO: Apply transforms
                 settings.Modifiers, 
-                Enum.GetNames(type).ToList());
+                type.GetFields(BindingFlags.Public | BindingFlags.Static).Select(enumEntry => new TypescriptEnumValue(
+                    enumEntry.Name, 
+                    enumEntry.GetCustomAttribute<EnumMemberAttribute>()?.Value)
+                ).ToList());
         }
     }
 }

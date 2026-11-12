@@ -13,16 +13,16 @@ namespace TypescriptGenerator
 {
     public class TypescriptGenerator
     {
-        public static TypescriptGenerator Builder => new TypescriptGenerator();
+        public static TypescriptGenerator Builder => new();
         public List<Type> IncludedTypes { get; } = [];
         public List<Type> ExcludedTypes { get; } = [];
 
-        public TypescriptEnumConverterSettings EnumSettings { get; } = new TypescriptEnumConverterSettings();
+        public TypescriptEnumConverterSettings EnumSettings { get; } = new();
         public List<string> NamespaceModifiers { get; } = [];
         public List<NamespaceSettings> NamespaceSettings { get; } = [];
         public string OutputDirectory { get; set; } = ".";
-        public GeneralFormatterSettings FormatterSettings { get; } = new GeneralFormatterSettings();
-        public TypescriptClassToInterfaceConverterSettings InterfaceSettings { get; } = new TypescriptClassToInterfaceConverterSettings
+        public GeneralFormatterSettings FormatterSettings { get; } = new();
+        public TypescriptClassToInterfaceConverterSettings InterfaceSettings { get; } = new()
         {
             PropertySettings =
             {
