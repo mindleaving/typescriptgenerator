@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Newtonsoft.Json;
 using TypescriptGenerator.Attributes;
 using TypescriptGenerator.Extensions;
 using TypescriptGenerator.Objects;
@@ -26,8 +25,9 @@ namespace TypescriptGenerator.Converters
 
         public TypescriptProperty Convert(PropertyInfo property)
         {
-            var propertyName = property.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName
-                               ?? ApplyCasing(property.Name, settings.Casing);
+            var propertyName = settings.CustomPropertyNamingFunc != null
+                ? settings.CustomPropertyNamingFunc(property) ?? ApplyCasing(property.Name, settings.Casing)
+                : ApplyCasing(property.Name, settings.Casing);
             var typeAttribute = property.GetCustomAttribute<TypescriptTypeAttribute>();
             string formattedType;
             List<Type> dependencies;
@@ -82,8 +82,6 @@ namespace TypescriptGenerator.Converters
                     var parts = PropertyNameSplitter.Split(propertyName);
                     return string.Join("", parts.Select(FirstLetterUppercase));
                 }
-                case CasingType.Custom:
-                    return settings.CustomPropertyNamingFunc(propertyName);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(casing), casing, null);
             }

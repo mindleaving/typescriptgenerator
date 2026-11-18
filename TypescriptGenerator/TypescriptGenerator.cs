@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json.Linq;
 using TypescriptGenerator.Converters;
 using TypescriptGenerator.Extensions;
 using TypescriptGenerator.Formatter;
@@ -22,16 +21,7 @@ namespace TypescriptGenerator
         public List<NamespaceSettings> NamespaceSettings { get; } = [];
         public string OutputDirectory { get; set; } = ".";
         public GeneralFormatterSettings FormatterSettings { get; } = new();
-        public TypescriptClassToInterfaceConverterSettings InterfaceSettings { get; } = new()
-        {
-            PropertySettings =
-            {
-                TypeConverters =
-                {
-                    new GenericTypeConverter(x => typeof(JToken).IsAssignableFrom(x), x => "any")
-                }
-            }
-        };
+        public TypescriptClassToInterfaceConverterSettings InterfaceSettings { get; } = new();
         public List<ITypeConverter> CustomTypeConverters => InterfaceSettings.PropertySettings.TypeConverters;
 
         public string DefaultFilename { get; set; } = "models.d.ts";

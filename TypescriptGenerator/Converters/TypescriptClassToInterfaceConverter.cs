@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Newtonsoft.Json;
 using TypescriptGenerator.Extensions;
 using TypescriptGenerator.Objects;
 using TypescriptGenerator.Settings;
@@ -96,8 +95,10 @@ namespace TypescriptGenerator.Converters
         {
             if (!property.GetMethod.IsPublic)
                 return false;
-            if(property.GetCustomAttributes<JsonIgnoreAttribute>().Any())
+            if(property.GetCustomAttributes().Select(x => x.GetType()).Intersect(settings.IgnoreAttributes).Any())
+            {
                 return false;
+            }
             if (baseClassAndInterfaceProperties.Any(baseProperty => baseProperty.Name == property.Name))
                 return false;
             return true;

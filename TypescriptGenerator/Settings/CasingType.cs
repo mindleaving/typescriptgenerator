@@ -4,7 +4,6 @@
     {
         Original,
         CamelCase,
-        PascalCase,
-        Custom
+        PascalCase
     }
 }

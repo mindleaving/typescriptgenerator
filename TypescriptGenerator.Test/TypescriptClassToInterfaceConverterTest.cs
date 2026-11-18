@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Commons.Mathematics;
 using Commons.Physics;
 using Newtonsoft.Json;
@@ -44,8 +45,16 @@ namespace TypescriptGenerator.Test
             {
                 PropertySettings =
                 {
-                    Casing = CasingType.CamelCase
-                }
+                    Casing = CasingType.CamelCase,
+                    CustomPropertyNamingFunc = propertyInfo =>
+                    {
+                        var jsonProperty = propertyInfo.GetCustomAttribute<JsonPropertyAttribute>();
+                        if (jsonProperty != null)
+                            return jsonProperty.PropertyName;
+                        return null;
+                    }
+                },
+                IgnoreAttributes = { typeof(JsonIgnoreAttribute) }
             };
             var sut = new TypescriptClassToInterfaceConverter(settings, enumSettings, namespaceSettings);
 
