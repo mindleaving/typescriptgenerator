@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using TypescriptGenerator.Converters;
@@ -112,6 +113,21 @@ namespace TypescriptGenerator
             generator.CustomTypeConverters.Add(new GenericTypeConverter(matchFunc, convertFunc));
             return generator;
         }
+        public static TypescriptGenerator SetIgnoreAttributes(
+            this TypescriptGenerator generator, 
+            IEnumerable<Type> ignoreAttributeTypes)
+        {
+            generator.InterfaceSettings.IgnoreAttributes.AddRange(ignoreAttributeTypes);
+            return generator;
+        }
+        public static TypescriptGenerator SetPropertyFormatter(
+            this TypescriptGenerator generator, 
+            Func<PropertyInfo,string?> customPropertyFormatter)
+        {
+            generator.InterfaceSettings.PropertySettings.CustomPropertyNamingFunc = customPropertyFormatter;
+            return generator;
+        }
+        
         public static TypescriptGenerator ReactDefaults(this TypescriptGenerator generator)
         {
             return generator
